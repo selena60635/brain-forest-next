@@ -1,12 +1,10 @@
-"use client";
-import React, { useContext } from "react";
+import React from "react";
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
 import { FaPhone } from "react-icons/fa6";
 
 export default function Home() {
-  // const { user } = useContext(Context);
   const user = false;
   return (
     <>

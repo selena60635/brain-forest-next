@@ -11,7 +11,7 @@ export const metadata = {
   author: "Selena",
 };
 
-// 專門用於 viewport 的匯出
+// 專門用於 viewport
 export const viewport = {
   width: "device-width",
   initialScale: 1,
