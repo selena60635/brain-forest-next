@@ -42,13 +42,18 @@ export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
 };
 
 export default function WorkArea() {
+  const [isPanMode, setIsPanMode] = useState(false);
+
+  const [relMode, setRelMode] = useState(false);
+  const [rels, setRels] = useState([]);
+  const [relFromNode, setRelFromNode] = useState(null);
+  const [selectedRelId, setSelectedRelId] = useState(null);
+
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
-  const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
-
   const canvasRef = useRef(null); //用來引用並存儲畫布Dom
-  const btnsRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的按鈕群組
 
+  //定義根節點狀態
   const [rootNode, setRootNode] = useState({
     id: uuidv4(),
     name: "Central Topic",
@@ -66,10 +71,7 @@ export default function WorkArea() {
       style: "solid",
     },
   });
-  const rootRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的根節點Dom元素
-
   const [nodes, setNodes] = useState([]); //定義節點們的狀態，用来存儲所有節點，初始為空陣列
-
   const newNode = useMemo(
     () => ({
       id: uuidv4(),
@@ -114,13 +116,12 @@ export default function WorkArea() {
     }),
     []
   );
-  const nodeRefs = useRef([]);
-  const sumRefs = useRef([]);
 
-  const [relMode, setRelMode] = useState(false);
-  const [rels, setRels] = useState([]);
-  const [relFromNode, setRelFromNode] = useState(null);
-  const [selectedRelId, setSelectedRelId] = useState(null);
+  const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
+  const rootRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的根節點Dom元素
+  const nodeRefs = useRef([]); //宣告一個引用，初始為空陣列，用來存儲每個引用的節點Dom元素
+  const sumRefs = useRef([]);
+  const btnsRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的按鈕群組
   const relRefs = useRef({});
 
   //取得節點canvas位置
@@ -146,19 +147,23 @@ export default function WorkArea() {
   //繪製生成選取框
   const handleMouseDown = (e) => {
     if (e.button !== 0 || btnsRef.current.contains(e.target)) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    selectStart.current = {
-      x: e.clientX + canvasRef.current.scrollLeft - rect.left,
-      y: e.clientY + canvasRef.current.scrollTop - rect.top,
-    };
-    setSelectBox({
-      left: selectStart.current.x,
-      top: selectStart.current.y,
-      width: 0,
-      height: 0,
-    });
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    if (isPanMode) {
+      handlePanMouseDown(e);
+    } else {
+      const rect = canvasRef.current.getBoundingClientRect();
+      selectStart.current = {
+        x: e.clientX + canvasRef.current.scrollLeft - rect.left,
+        y: e.clientY + canvasRef.current.scrollTop - rect.top,
+      };
+      setSelectBox({
+        left: selectStart.current.x,
+        top: selectStart.current.y,
+        width: 0,
+        height: 0,
+      });
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
   };
 
   const handleMouseMove = (e) => {
@@ -192,6 +197,31 @@ export default function WorkArea() {
     window.removeEventListener("mousemove", handleMouseMove);
     window.removeEventListener("mouseup", handleMouseUp);
     setSelectBox(null);
+  };
+  //pan mode
+  const handlePanMouseDown = (e) => {
+    if (!isPanMode) return;
+    canvasRef.current.style.cursor = "grabbing";
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startScrollLeft = canvasRef.current.scrollLeft;
+    const startScrollTop = canvasRef.current.scrollTop;
+
+    const handlePanMouseMove = (moveEvent) => {
+      const xOffset = moveEvent.clientX - startX;
+      const yOffset = moveEvent.clientY - startY;
+      canvasRef.current.scrollLeft = startScrollLeft - xOffset;
+      canvasRef.current.scrollTop = startScrollTop - yOffset;
+    };
+
+    const handlePanMouseUp = () => {
+      window.removeEventListener("mousemove", handlePanMouseMove);
+      window.removeEventListener("mouseup", handlePanMouseUp);
+      canvasRef.current.style.cursor = "grab";
+    };
+
+    window.addEventListener("mousemove", handlePanMouseMove);
+    window.addEventListener("mouseup", handlePanMouseUp);
   };
 
   const findParentNode = useCallback(
@@ -497,16 +527,29 @@ export default function WorkArea() {
     // }
   };
 
+  //設定PanMode開/關，及滑鼠樣式
+  const togglePanMode = () => {
+    setIsPanMode((prev) => {
+      const newPanMode = !prev;
+      if (newPanMode) {
+        canvasRef.current.style.cursor = "grab";
+      } else {
+        canvasRef.current.style.cursor = "auto";
+      }
+      return newPanMode;
+    });
+  };
+
   return (
     <>
       {relMode && (
         <p className="absolute z-10">Please click the target node.</p>
       )}
+
       <div className={`flex w-full`}>
-        <div className={`transition-all duration-300 ease-in-out w-screen`}>
+        <div className={`transition-all duration-300 ease-in-out w-screen `}>
           <div
-            className={`canvas-wrap  h-[calc(100vh-65px)]
-    `}
+            className={`canvas-wrap h-[calc(100vh-65px)] `}
             onMouseDown={handleMouseDown}
             ref={canvasRef}
           >
@@ -517,11 +560,11 @@ export default function WorkArea() {
                   nodes={nodes}
                   selectedNodes={selectedNodes}
                   addNode={addNode}
+                  delNode={delNode}
                   findParentNode={findParentNode}
                   addSiblingNode={addSiblingNode}
                   addSiblingChildNode={addSiblingChildNode}
                   addChildNode={addChildNode}
-                  delNode={delNode}
                   addSummary={addSummary}
                   handleLinkMode={handleLinkMode}
                   selectedRelId={selectedRelId}
@@ -534,9 +577,13 @@ export default function WorkArea() {
               <div
                 className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out right-10 `}
               >
-                <BtnsGroupRow />
+                <BtnsGroupRow
+                  togglePanMode={togglePanMode}
+                  isPanMode={isPanMode}
+                />
               </div>
             </div>
+
             {selectBox && (
               <div
                 className="select-box"
@@ -548,7 +595,7 @@ export default function WorkArea() {
                 }}
               />
             )}
-            <div className="canvas">
+            <div className={`canvas `}>
               <MindMap
                 nodes={nodes}
                 setNodes={setNodes}
@@ -566,6 +613,7 @@ export default function WorkArea() {
                 addSiblingChildNode={addSiblingChildNode}
                 addChildNode={addChildNode}
                 getNodeCanvasLoc={getNodeCanvasLoc}
+                togglePanMode={togglePanMode}
                 sumRefs={sumRefs}
                 addSummary={addSummary}
                 handleNodeClick={handleNodeClick}
@@ -577,6 +625,7 @@ export default function WorkArea() {
                 setSelectedRelId={setSelectedRelId}
                 relRefs={relRefs}
                 btnsRef={btnsRef}
+                isPanMode={isPanMode}
                 handleLinkMode={handleLinkMode}
               />
             </div>

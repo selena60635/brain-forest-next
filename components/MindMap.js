@@ -22,6 +22,7 @@ export default function MindMap({
 
   getNodeCanvasLoc,
 
+  togglePanMode,
   sumRefs,
   addSummary,
   handleNodeClick,
@@ -33,6 +34,7 @@ export default function MindMap({
   setSelectedRelId,
   relRefs,
   btnsRef,
+  isPanMode,
 
   handleLinkMode,
 }) {
@@ -43,6 +45,7 @@ export default function MindMap({
     if (rootRef.current && svgRef.current) {
       const rootRect = rootRef.current.getBoundingClientRect(); // 獲取根節點的矩形物件
       const svgRect = svgRef.current.getBoundingClientRect(); // 獲取 SVG 的矩形物件
+
       return {
         x: rootRect.left - svgRect.left + rootRect.width, // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
         y: rootRect.top - svgRect.top + rootRect.height / 2, // 計算根節點的中心點相對於g的Y坐標
@@ -184,8 +187,9 @@ export default function MindMap({
         return;
       }
       if (
-        ["Enter", "Delete", "Tab"].includes(e.key) &&
-        selectedNodes.length === 1
+        (["Enter", "Delete", "Tab"].includes(e.key) &&
+          selectedNodes.length === 1) ||
+        [" "].includes(e.key)
       ) {
         e.preventDefault();
         e.stopPropagation();
@@ -217,6 +221,10 @@ export default function MindMap({
         }
       }
 
+      //pan mode
+      if (e.key === " ") {
+        togglePanMode();
+      }
       //add summary
       if (e.altKey && e.key === "s") {
         e.preventDefault();
@@ -246,6 +254,7 @@ export default function MindMap({
       nodes,
       rootNode,
 
+      togglePanMode,
       addSummary,
       selectBox,
       handleLinkMode,
@@ -276,6 +285,7 @@ export default function MindMap({
           setSelectedRelId={setSelectedRelId}
           relRefs={relRefs}
           btnsRef={btnsRef}
+          isPanMode={isPanMode}
         />
 
         <RootNode
