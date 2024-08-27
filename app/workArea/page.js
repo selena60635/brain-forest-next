@@ -117,6 +117,12 @@ export default function WorkArea() {
   const nodeRefs = useRef([]);
   const sumRefs = useRef([]);
 
+  const [relMode, setRelMode] = useState(false);
+  const [rels, setRels] = useState([]);
+  const [relFromNode, setRelFromNode] = useState(null);
+  const [selectedRelId, setSelectedRelId] = useState(null);
+  const relRefs = useRef({});
+
   //取得節點canvas位置
   const getNodeCanvasLoc = useCallback(
     (nodeRef) => {
@@ -240,13 +246,14 @@ export default function WorkArea() {
     });
     setSelectedNodes([newNodeInstance.id]);
     nodeRefs.current.splice(selectedNodeIndex + 1, 0, React.createRef());
-  }, [nodes, newNode, selectedNodes]);
+  }, [nodes, newNode, selectedNodes, setNodes, setSelectedNodes, nodeRefs]);
 
   const addChildNode = useCallback(
     (parentId) => {
       const newChildInstance = {
         ...newChildNode,
         id: uuidv4(),
+        parent: parentId,
       };
 
       const addChildToParent = (nodes) =>
@@ -278,6 +285,7 @@ export default function WorkArea() {
       const newChildInstance = {
         ...newChildNode,
         id: uuidv4(),
+        parent: parentNode.id,
       };
       const addSibling = (nodes) => {
         return nodes.map((node) => {
@@ -314,44 +322,86 @@ export default function WorkArea() {
     [selectedNodes, setNodes, setSelectedNodes, nodeRefs, newChildNode]
   );
 
-  const delNode = useCallback((idArr) => {
-    const deleteNodes = (nodes, idsToDelete) => {
-      return nodes.filter((node) => {
-        // 檢查節點是否在刪除ID列表中
-        const isNodeToDelete = idsToDelete.includes(node.id);
-        // 如果節點有總結節點，檢查是否需要刪除總結節點
-        if (
-          node.summary &&
-          (isNodeToDelete || idsToDelete.includes(node.summary.id))
-        ) {
-          delete sumRefs.current[node.summary.id];
-          delete node.summary; // 刪除節點上的 summary 屬性
-        }
-        // 如果節點本身需要刪除，返回 false 過濾掉它
-        if (isNodeToDelete) {
-          return false;
-        }
-        // 遞迴檢查並更新子節點
-        if (node.children) {
-          node.children = deleteNodes(node.children, idsToDelete);
-        }
+  const delNode = useCallback(
+    (idArr) => {
+      const deleteNodes = (nodes, idsToDelete) => {
+        return nodes.filter((node) => {
+          // 檢查節點是否在刪除ID列表中
+          const isNodeToDelete = idsToDelete.includes(node.id);
+          // 如果節點有總結節點，檢查是否需要刪除總結節點
+          if (
+            node.summary &&
+            (isNodeToDelete || idsToDelete.includes(node.summary.id))
+          ) {
+            delete sumRefs.current[node.summary.id];
+            delete node.summary; // 刪除節點上的 summary 屬性
+          }
+          // 如果節點本身需要刪除，返回 false 過濾掉它
+          if (isNodeToDelete) {
+            return false;
+          }
+          // 遞迴檢查並更新子節點
+          if (node.children) {
+            node.children = deleteNodes(node.children, idsToDelete);
+          }
 
-        return true;
+          return true;
+        });
+      };
+
+      setNodes((prev) => {
+        const newNodes = deleteNodes(prev, idArr);
+
+        nodeRefs.current = nodeRefs.current.filter(
+          (item, index) => !idArr.includes(prev[index]?.id)
+        );
+        // 檢查每個 rel，若其 from 或 to 節點在 idsToDelete 中，則刪除該 rel
+        setRels((prevRels) => {
+          return prevRels.filter((rel) => {
+            //遍歷rel，若目前選取的id中是rel的關連節點之一，則需要一併刪除
+            const deleteRel =
+              idArr.includes(rel.from) || idArr.includes(rel.to);
+            if (
+              (idArr.includes(rel.from) || idArr.includes(rel.to)) &&
+              relRefs.current[rel.id]
+            ) {
+              delete relRefs.current[rel.id];
+            }
+
+            //若deleteRel為true，表示該 rel 需要被過濾掉
+            return !deleteRel;
+          });
+        });
+
+        return newNodes;
       });
-    };
+      //刪除關聯
+      if (selectedRelId) {
+        setRels((prev) => {
+          const newRels = prev.filter((rel) => rel.id !== selectedRelId);
 
-    setNodes((prev) => {
-      const newNodes = deleteNodes(prev, idArr);
+          if (relRefs.current[selectedRelId]) {
+            delete relRefs.current[selectedRelId];
+          }
 
-      nodeRefs.current = nodeRefs.current.filter(
-        (item, index) => !idArr.includes(prev[index]?.id)
-      );
+          return newRels;
+        });
+        setSelectedRelId(null);
+      }
 
-      return newNodes;
-    });
-
-    setSelectedNodes([]);
-  }, []);
+      setSelectedNodes([]);
+    },
+    [
+      nodeRefs,
+      setNodes,
+      setSelectedNodes,
+      sumRefs,
+      relRefs,
+      setRels,
+      selectedRelId,
+      setSelectedRelId,
+    ]
+  );
 
   const addSummary = useCallback(() => {
     setNodes((prev) =>
@@ -386,75 +436,153 @@ export default function WorkArea() {
     );
   }, [selectedNodes]);
 
+  const isSummaryNode = (nodes, from) => {
+    return nodes.some((node) => {
+      if (node.summary && node.summary.id === from) {
+        return true;
+      }
+
+      if (node.children && node.children.length > 0) {
+        return isSummaryNode(node.children, from);
+      }
+      return false;
+    });
+  };
+
+  const handleLinkMode = (from) => {
+    if (selectedNodes[0] && !isSummaryNode(nodes, from)) {
+      setRelFromNode(from);
+      setRelMode(true);
+    }
+  };
+  const addRel = useCallback(
+    (to) => {
+      if (relMode && relFromNode) {
+        const relId = uuidv4();
+        setRels((prev) => {
+          const newRels = [
+            ...prev,
+            {
+              id: relId,
+              name: "Relationship",
+              pathColor: "#000",
+              font: {
+                family: "Noto Sans TC",
+                size: "16px",
+                weight: "400",
+                color: "#000",
+              },
+              from: relFromNode,
+              to: to,
+            },
+          ];
+          return newRels;
+        });
+        setSelectedRelId(relId);
+        setRelMode(false);
+        setRelFromNode(null);
+      }
+    },
+    [relMode, relFromNode]
+  );
+
+  const handleNodeClick = (nodeId, e) => {
+    e.stopPropagation();
+    if (!relMode) return;
+    if (relMode && relFromNode && nodeId !== relFromNode) {
+      addRel(nodeId);
+    }
+    // else {
+    //   console.log("你不能關聯自己");
+    // }
+  };
+
   return (
-    <div className={`flex w-full`}>
-      <div className={`transition-all duration-300 ease-in-out w-screen`}>
-        <div
-          className={`canvas-wrap  h-[calc(100vh-65px)]
+    <>
+      {relMode && (
+        <p className="absolute z-10">Please click the target node.</p>
+      )}
+      <div className={`flex w-full`}>
+        <div className={`transition-all duration-300 ease-in-out w-screen`}>
+          <div
+            className={`canvas-wrap  h-[calc(100vh-65px)]
     `}
-          onMouseDown={handleMouseDown}
-          ref={canvasRef}
-        >
-          <div ref={btnsRef}>
-            <div className="top-[90px] left-5 fixed z-20">
-              <BtnsGroupCol
-                rootNode={rootNode}
+            onMouseDown={handleMouseDown}
+            ref={canvasRef}
+          >
+            <div ref={btnsRef}>
+              <div className="top-[90px] left-5 fixed z-20">
+                <BtnsGroupCol
+                  rootNode={rootNode}
+                  nodes={nodes}
+                  selectedNodes={selectedNodes}
+                  addNode={addNode}
+                  findParentNode={findParentNode}
+                  addSiblingNode={addSiblingNode}
+                  addSiblingChildNode={addSiblingChildNode}
+                  addChildNode={addChildNode}
+                  delNode={delNode}
+                  addSummary={addSummary}
+                  handleLinkMode={handleLinkMode}
+                  selectedRelId={selectedRelId}
+                />
+              </div>
+
+              <div className="btns-group bottom-10 left-5 fixed z-20 h-12">
+                <Shortcuts />
+              </div>
+              <div
+                className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out right-10 `}
+              >
+                <BtnsGroupRow />
+              </div>
+            </div>
+            {selectBox && (
+              <div
+                className="select-box"
+                style={{
+                  left: selectBox.left,
+                  top: selectBox.top,
+                  width: selectBox.width,
+                  height: selectBox.height,
+                }}
+              />
+            )}
+            <div className="canvas">
+              <MindMap
                 nodes={nodes}
+                setNodes={setNodes}
+                rootNode={rootNode}
+                setRootNode={setRootNode}
                 selectedNodes={selectedNodes}
-                addNode={addNode}
+                setSelectedNodes={setSelectedNodes}
+                selectBox={selectBox}
+                rootRef={rootRef}
+                nodeRefs={nodeRefs}
+                delNode={delNode}
                 findParentNode={findParentNode}
+                addNode={addNode}
                 addSiblingNode={addSiblingNode}
                 addSiblingChildNode={addSiblingChildNode}
                 addChildNode={addChildNode}
-                delNode={delNode}
+                getNodeCanvasLoc={getNodeCanvasLoc}
+                sumRefs={sumRefs}
                 addSummary={addSummary}
+                handleNodeClick={handleNodeClick}
+                rels={rels}
+                relMode={relMode}
+                setRelMode={setRelMode}
+                setRels={setRels}
+                selectedRelId={selectedRelId}
+                setSelectedRelId={setSelectedRelId}
+                relRefs={relRefs}
+                btnsRef={btnsRef}
+                handleLinkMode={handleLinkMode}
               />
             </div>
-
-            <div className="btns-group bottom-10 left-5 fixed z-20 h-12">
-              <Shortcuts />
-            </div>
-            <div
-              className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out right-10 `}
-            >
-              <BtnsGroupRow />
-            </div>
-          </div>
-          {selectBox && (
-            <div
-              className="select-box"
-              style={{
-                left: selectBox.left,
-                top: selectBox.top,
-                width: selectBox.width,
-                height: selectBox.height,
-              }}
-            />
-          )}
-          <div className="canvas">
-            <MindMap
-              rootNode={rootNode}
-              setRootNode={setRootNode}
-              rootRef={rootRef}
-              nodes={nodes}
-              setNodes={setNodes}
-              nodeRefs={nodeRefs}
-              selectBox={selectBox}
-              selectedNodes={selectedNodes}
-              setSelectedNodes={setSelectedNodes}
-              getNodeCanvasLoc={getNodeCanvasLoc}
-              findParentNode={findParentNode}
-              addNode={addNode}
-              addSiblingNode={addSiblingNode}
-              addChildNode={addChildNode}
-              addSiblingChildNode={addSiblingChildNode}
-              delNode={delNode}
-              sumRefs={sumRefs}
-              addSummary={addSummary}
-            />
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

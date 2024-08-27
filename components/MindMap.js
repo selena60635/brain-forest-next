@@ -1,27 +1,40 @@
 import React, { useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import RootNode from "./RootNode";
 import Node from "./Node";
+import Relations from "./Relations";
 
 export default function MindMap({
   nodes,
   setNodes,
-  nodeRefs,
-
   rootNode,
   setRootNode,
   selectedNodes,
   setSelectedNodes,
   selectBox,
   rootRef,
-  getNodeCanvasLoc,
+  nodeRefs,
+  delNode,
   findParentNode,
   addNode,
   addSiblingNode,
-  addChildNode,
   addSiblingChildNode,
-  delNode,
-  addSummary,
+  addChildNode,
+
+  getNodeCanvasLoc,
+
   sumRefs,
+  addSummary,
+  handleNodeClick,
+  rels,
+  relMode,
+  setRelMode,
+  setRels,
+  selectedRelId,
+  setSelectedRelId,
+  relRefs,
+  btnsRef,
+
+  handleLinkMode,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -30,7 +43,6 @@ export default function MindMap({
     if (rootRef.current && svgRef.current) {
       const rootRect = rootRef.current.getBoundingClientRect(); // 獲取根節點的矩形物件
       const svgRect = svgRef.current.getBoundingClientRect(); // 獲取 SVG 的矩形物件
-
       return {
         x: rootRect.left - svgRect.left + rootRect.width, // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
         y: rootRect.top - svgRect.top + rootRect.height / 2, // 計算根節點的中心點相對於g的Y坐標
@@ -68,7 +80,7 @@ export default function MindMap({
 
   useLayoutEffect(() => {
     updateLocs();
-  }, [nodesStr, rootNodeStr, updateLocs]);
+  }, [nodesStr, rootNodeStr, updateLocs, rels]);
 
   //判定是否被選取
   const isNodeSelected = useCallback(
@@ -107,6 +119,7 @@ export default function MindMap({
       if (isNodeSelected(rootRect)) {
         selected.push(rootNode.id);
       }
+
       //一層層遞迴遍歷nodes中所有的節點，判斷每一個節點是否有被選中
       const traverseNodes = (nodes, refs, parentRefs) => {
         nodes.forEach((node, index) => {
@@ -155,13 +168,13 @@ export default function MindMap({
     }
   }, [
     selectBox,
+    nodes,
     isNodeSelected,
     rootNode.id,
+    nodeRefs,
     setSelectedNodes,
     getNodeCanvasLoc,
     rootRef,
-    nodeRefs,
-    nodes,
     sumRefs,
   ]);
 
@@ -171,7 +184,7 @@ export default function MindMap({
         return;
       }
       if (
-        ["Enter", "Tab", "Delete"].includes(e.key) &&
+        ["Enter", "Delete", "Tab"].includes(e.key) &&
         selectedNodes.length === 1
       ) {
         e.preventDefault();
@@ -191,6 +204,11 @@ export default function MindMap({
           addSiblingNode();
         }
       }
+
+      if (e.key === "Delete" && (selectedNodes.length > 0 || selectedRelId)) {
+        delNode(selectedNodes);
+      }
+
       if (e.key === "Tab" && selectedNodes.length === 1) {
         if (selectedNodes[0] === rootNode.id) {
           addNode();
@@ -198,9 +216,7 @@ export default function MindMap({
           addChildNode(selectedNodes[0]);
         }
       }
-      if (e.key === "Delete" && selectedNodes.length > 0) {
-        delNode(selectedNodes);
-      }
+
       //add summary
       if (e.altKey && e.key === "s") {
         e.preventDefault();
@@ -209,19 +225,31 @@ export default function MindMap({
           addSummary();
         }
       }
+      //add rel
+      if (e.altKey && e.key === "r") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectedNodes.length === 1) {
+          handleLinkMode(selectedNodes[0]);
+        }
+      }
     },
     [
       selectedNodes,
       addNode,
-      addSiblingNode,
-      rootNode,
-      selectBox,
       addChildNode,
       addSiblingChildNode,
-      findParentNode,
-      nodes,
+      addSiblingNode,
       delNode,
+      findParentNode,
+
+      nodes,
+      rootNode,
+
       addSummary,
+      selectBox,
+      handleLinkMode,
+      selectedRelId,
     ]
   );
 
@@ -235,27 +263,46 @@ export default function MindMap({
   return (
     <>
       <div className="mindmap">
+        <Relations
+          rootNode={rootNode}
+          rootRef={rootRef}
+          nodes={nodes}
+          nodeRefs={nodeRefs}
+          rels={rels}
+          relMode={relMode}
+          setRelMode={setRelMode}
+          setRels={setRels}
+          selectedRelId={selectedRelId}
+          setSelectedRelId={setSelectedRelId}
+          relRefs={relRefs}
+          btnsRef={btnsRef}
+        />
+
         <RootNode
           rootNode={rootNode}
           setRootNode={setRootNode}
           rootRef={rootRef}
           isSelected={selectedNodes.includes(rootNode.id)}
+          handleNodeClick={handleNodeClick}
         />
+
         <div className="flex flex-col items-start">
           {nodes.map((node, index) => (
             <Node
               key={node.id}
               rootNode={rootNode}
               node={nodes[index]}
-              nodes={nodes}
               setNodes={setNodes}
               nodeRef={nodeRefs.current[index]}
               nodeRefs={nodeRefs}
+              delNode={delNode}
               isSelected={selectedNodes.includes(node.id)}
               selectedNodes={selectedNodes}
               setSelectedNodes={setSelectedNodes}
+              nodes={nodes}
               sumRefs={sumRefs}
               isSelectedSum={selectedNodes.includes(node.summary?.id)}
+              handleNodeClick={handleNodeClick}
             />
           ))}
         </div>

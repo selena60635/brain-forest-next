@@ -3,6 +3,7 @@ import { selectText } from "./RootNode";
 import Summary from "./Summary";
 // 子節點組件
 const ChildNode = ({
+  rootNode,
   childNode,
   nodes,
   setNodes,
@@ -13,8 +14,10 @@ const ChildNode = ({
   setSelectedNodes,
   selectedNodes,
   parentRef,
+
   sumRefs,
   isSelectedSum,
+  handleNodeClick,
 }) => {
   const [isEditing, setIsEditing] = useState(childNode.isNew);
   const inputRef = useRef(null);
@@ -129,6 +132,7 @@ const ChildNode = ({
         }}
         tabIndex="0"
         onDoubleClick={editMode}
+        onClick={(e) => handleNodeClick(childNode.id, e)}
         ref={childRef}
       >
         {isEditing ? (
@@ -175,6 +179,7 @@ const ChildNode = ({
             return (
               <ChildNode
                 key={subchildNode.id}
+                rootNode={rootNode}
                 childNode={subchildNode}
                 nodes={nodes}
                 setNodes={setNodes}
@@ -190,6 +195,7 @@ const ChildNode = ({
                 } //子節點引用為上一層子節點的對應索引位置元素，若沒有這個引用則建立一個新的引用
                 sumRefs={sumRefs}
                 isSelectedSum={selectedNodes.includes(subchildNode.summary?.id)}
+                handleNodeClick={handleNodeClick}
               />
             );
           })}
@@ -217,16 +223,19 @@ const ChildNode = ({
 };
 
 export default function Node({
+  rootNode,
   node,
-  nodes,
   nodeRef,
-  nodeRefs,
   setNodes,
   isSelected,
   selectedNodes,
+  nodeRefs,
   setSelectedNodes,
+
   sumRefs,
   isSelectedSum,
+  nodes,
+  handleNodeClick,
 }) {
   const [isEditing, setIsEditing] = useState(node.isNew);
   const inputRef = useRef(null);
@@ -235,7 +244,6 @@ export default function Node({
   if (!nodeRefs.current[node.id]) {
     nodeRefs.current[node.id] = [];
   }
-
   //進入編輯模式後切換焦點
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -265,6 +273,7 @@ export default function Node({
     }
     setIsEditing(false);
   };
+
   return (
     <div
       className={`flex items-center ml-40 ${
@@ -296,6 +305,7 @@ export default function Node({
         tabIndex="0"
         ref={nodeRef}
         onDoubleClick={editMode}
+        onClick={(e) => handleNodeClick(node.id, e)}
       >
         {isEditing ? (
           <>
@@ -343,6 +353,7 @@ export default function Node({
             return (
               <ChildNode
                 key={childNode.id}
+                rootNode={rootNode}
                 childNode={childNode}
                 nodes={nodes}
                 setNodes={setNodes}
@@ -355,6 +366,7 @@ export default function Node({
                 selectedNodes={selectedNodes}
                 sumRefs={sumRefs}
                 isSelectedSum={selectedNodes.includes(childNode.summary?.id)}
+                handleNodeClick={handleNodeClick}
               />
             );
           })}

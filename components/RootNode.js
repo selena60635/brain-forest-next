@@ -18,10 +18,11 @@ export default function RootNode({
   setRootNode,
   rootRef,
   isSelected,
+
+  handleNodeClick,
 }) {
   const [isEditRoot, setIsEditRoot] = useState(false); //定義根節點編輯模式狀態，初始為false
   const inputRef = useRef(null);
-
   // 進入編輯模式後切換焦點
   useEffect(() => {
     if (isEditRoot && inputRef.current) {
@@ -47,6 +48,7 @@ export default function RootNode({
       tabIndex="0"
       ref={rootRef}
       onDoubleClick={editMode}
+      onClick={(e) => handleNodeClick(rootNode.id, e)}
       style={{
         "--outline-width": `${
           rootNode.outline.style !== "none"
@@ -75,6 +77,9 @@ export default function RootNode({
                 rootRef.current?.getBoundingClientRect().width ?? 128
               }px`,
               maxWidth: `${500}px`,
+              textDecorationLine: `${
+                rootNode.font.isStrikethrough ? "line-through" : "none"
+              }`,
             }}
             contentEditable="true"
             suppressContentEditableWarning="true"
