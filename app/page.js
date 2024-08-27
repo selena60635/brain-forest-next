@@ -157,10 +157,7 @@ export default function Home() {
             </li>
             <li className="">
               {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="rounded-md px-2 py-1 text-white bg-secondary hover:bg-primary "
-                >
+                <button className="rounded-md px-2 py-1 text-white bg-secondary hover:bg-primary ">
                   Sign Out
                 </button>
               ) : (

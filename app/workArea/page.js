@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import MindMap from "../../components/MindMap";
 
@@ -29,6 +29,32 @@ export default function WorkArea() {
     },
   });
   const rootRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的根節點Dom元素
+
+  const [nodes, setNodes] = useState([]); //定義節點們的狀態，用来存儲所有節點，初始為空陣列
+
+  const newNode = useMemo(
+    () => ({
+      id: uuidv4(),
+      name: "Main Topic",
+      isNew: true, //標記為新創建的節點
+      children: [],
+      bkColor: "#17493b",
+      pathColor: "#17493b",
+      outline: { color: "#17493b", width: "3px", style: "none" },
+      font: {
+        family: "Noto Sans TC",
+        size: "20px",
+        weight: "400",
+        color: "#FFFFFF",
+      },
+      path: {
+        width: "3",
+        style: "solid",
+      },
+    }),
+    []
+  );
+  const nodeRefs = useRef([]);
 
   //取得節點canvas位置
   const getNodeCanvasLoc = useCallback(
@@ -100,6 +126,39 @@ export default function WorkArea() {
     setSelectBox(null);
   };
 
+  const addNode = () => {
+    const newNodeInstance = {
+      ...newNode,
+      id: uuidv4(),
+    };
+    setNodes((prev) => {
+      const newNodes = [...prev, newNodeInstance];
+      nodeRefs.current.push(React.createRef());
+      setSelectedNodes([newNodeInstance.id]);
+      return newNodes;
+    });
+  };
+
+  const addSiblingNode = useCallback(() => {
+    const newNodeInstance = {
+      ...newNode,
+      id: uuidv4(),
+    };
+    const selectedNodeIndex = nodes.findIndex(
+      (node) => node.id === selectedNodes[0]
+    );
+    setNodes((prevNodes) => {
+      const newNodes = [
+        ...prevNodes.slice(0, selectedNodeIndex + 1),
+        newNodeInstance,
+        ...prevNodes.slice(selectedNodeIndex + 1),
+      ];
+      return newNodes;
+    });
+    setSelectedNodes([newNodeInstance.id]);
+    nodeRefs.current.splice(selectedNodeIndex + 1, 0, React.createRef());
+  }, [nodes, newNode, selectedNodes, setNodes, setSelectedNodes, nodeRefs]);
+
   return (
     <div className={`flex w-full`}>
       <div className={`transition-all duration-300 ease-in-out w-screen`}>
@@ -125,10 +184,15 @@ export default function WorkArea() {
               rootNode={rootNode}
               setRootNode={setRootNode}
               rootRef={rootRef}
+              nodes={nodes}
+              setNodes={setNodes}
+              nodeRefs={nodeRefs}
               selectBox={selectBox}
               selectedNodes={selectedNodes}
               setSelectedNodes={setSelectedNodes}
               getNodeCanvasLoc={getNodeCanvasLoc}
+              addNode={addNode}
+              addSiblingNode={addSiblingNode}
             />
           </div>
         </div>
