@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useMemo,
   useLayoutEffect,
+  useEffect,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 import MindMap from "../../components/MindMap";
@@ -49,6 +50,7 @@ export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
 
 export default function WorkArea() {
   const [isPanMode, setIsPanMode] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const [relMode, setRelMode] = useState(false);
   const [rels, setRels] = useState([]);
@@ -129,6 +131,7 @@ export default function WorkArea() {
   const sumRefs = useRef([]);
   const btnsRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的按鈕群組
   const relRefs = useRef({});
+  const pageRef = useRef(null);
 
   //取得節點canvas位置
   const getNodeCanvasLoc = useCallback(
@@ -567,6 +570,50 @@ export default function WorkArea() {
     },
     [canvasRef, rootRef, getNodeCanvasLoc]
   );
+
+  const toggleFullScreen = () => {
+    if (!isFullScreen) {
+      if (pageRef.current.requestFullscreen) {
+        //最新版瀏覽器幾乎都支援
+        pageRef.current.requestFullscreen();
+      } else if (pageRef.current.mozRequestFullScreen) {
+        //Firefox
+        pageRef.current.mozRequestFullScreen();
+      } else if (pageRef.current.webkitRequestFullscreen) {
+        //Safari、Chrome、Opera
+        pageRef.current.webkitRequestFullscreen();
+      } else if (pageRef.current.msRequestFullscreen) {
+        //Edge
+        pageRef.current.msRequestFullscreen();
+      }
+      setIsFullScreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      setIsFullScreen(false);
+    }
+  };
+  //監聽全螢幕事件(F12、Esc)，使isFullScreen能夠正確設置
+  useEffect(() => {
+    const toggleFullScreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullScreen(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", toggleFullScreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", toggleFullScreenChange);
+    };
+  }, []);
+
   // 初始渲染設定
   useLayoutEffect(() => {
     const handleTab = (e) => {
@@ -589,10 +636,15 @@ export default function WorkArea() {
         <p className="absolute z-10">Please click the target node.</p>
       )}
 
-      <div className={`flex w-full`}>
+      <div
+        className={`flex w-full ${isFullScreen && "h-screen"}`}
+        ref={pageRef}
+      >
         <div className={`transition-all duration-300 ease-in-out w-screen `}>
           <div
-            className={`canvas-wrap h-[calc(100vh-65px)] `}
+            className={`canvas-wrap ${
+              isFullScreen ? "h-screen" : "h-[calc(100vh-65px)]"
+            }`}
             onMouseDown={handleMouseDown}
             ref={canvasRef}
           >
@@ -624,6 +676,7 @@ export default function WorkArea() {
                   togglePanMode={togglePanMode}
                   isPanMode={isPanMode}
                   scrollToCenter={scrollToCenter}
+                  toggleFullScreen={toggleFullScreen}
                 />
               </div>
             </div>
@@ -639,7 +692,7 @@ export default function WorkArea() {
                 }}
               />
             )}
-            <div className={`canvas `}>
+            <div className={`canvas bg-white`}>
               <MindMap
                 nodes={nodes}
                 setNodes={setNodes}
@@ -672,6 +725,7 @@ export default function WorkArea() {
                 isPanMode={isPanMode}
                 handleLinkMode={handleLinkMode}
                 scrollToCenter={scrollToCenter}
+                toggleFullScreen={toggleFullScreen}
               />
             </div>
           </div>

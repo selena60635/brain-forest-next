@@ -6,6 +6,7 @@ export default function BtnsGroupRow({
   togglePanMode,
   isPanMode,
   scrollToCenter,
+  toggleFullScreen,
 }) {
   return (
     <div className="flex space-x-4">
@@ -26,7 +27,7 @@ export default function BtnsGroupRow({
         >
           <HiArrowsPointingIn size={24} />
         </Button>
-        <Button className="btn aspect-square">
+        <Button className="btn aspect-square" onClick={toggleFullScreen}>
           <HiArrowsPointingOut size={24} />
         </Button>
 

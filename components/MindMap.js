@@ -38,6 +38,7 @@ export default function MindMap({
 
   handleLinkMode,
   scrollToCenter,
+  toggleFullScreen,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -190,7 +191,7 @@ export default function MindMap({
       if (
         (["Enter", "Delete", "Tab"].includes(e.key) &&
           selectedNodes.length === 1) ||
-        [" ", "F1"].includes(e.key)
+        [" ", "F1", "F2"].includes(e.key)
       ) {
         e.preventDefault();
         e.stopPropagation();
@@ -230,6 +231,10 @@ export default function MindMap({
       if (e.key === "F1") {
         scrollToCenter("smooth");
       }
+      //FullScreen
+      if (e.key === "F2") {
+        toggleFullScreen();
+      }
       //add summary
       if (e.altKey && e.key === "s") {
         e.preventDefault();
@@ -255,15 +260,15 @@ export default function MindMap({
       addSiblingNode,
       delNode,
       findParentNode,
-
       nodes,
       rootNode,
-
       togglePanMode,
       addSummary,
       selectBox,
       handleLinkMode,
       selectedRelId,
+      scrollToCenter,
+      toggleFullScreen,
     ]
   );
 
