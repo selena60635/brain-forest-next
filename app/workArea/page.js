@@ -2,6 +2,9 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
 import MindMap from "../../components/MindMap";
+import BtnsGroupCol from "../../components/BtnsGroupCol";
+import BtnsGroupRow from "../../components/BtnsGroupRow";
+import Shortcuts from "../../components/Shortcuts";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export default function WorkArea() {
@@ -10,6 +13,7 @@ export default function WorkArea() {
   const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
 
   const canvasRef = useRef(null); //用來引用並存儲畫布Dom
+  const btnsRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的按鈕群組
 
   const [rootNode, setRootNode] = useState({
     id: uuidv4(),
@@ -100,6 +104,7 @@ export default function WorkArea() {
 
   //繪製生成選取框
   const handleMouseDown = (e) => {
+    if (e.button !== 0 || btnsRef.current.contains(e.target)) return;
     const rect = canvasRef.current.getBoundingClientRect();
     selectStart.current = {
       x: e.clientX + canvasRef.current.scrollLeft - rect.left,
@@ -283,6 +288,29 @@ export default function WorkArea() {
           onMouseDown={handleMouseDown}
           ref={canvasRef}
         >
+          <div ref={btnsRef}>
+            <div className="top-[90px] left-5 fixed z-20">
+              <BtnsGroupCol
+                rootNode={rootNode}
+                nodes={nodes}
+                selectedNodes={selectedNodes}
+                addNode={addNode}
+                findParentNode={findParentNode}
+                addSiblingNode={addSiblingNode}
+                addSiblingChildNode={addSiblingChildNode}
+                addChildNode={addChildNode}
+              />
+            </div>
+
+            <div className="btns-group bottom-10 left-5 fixed z-20 h-12">
+              <Shortcuts />
+            </div>
+            <div
+              className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out right-10 `}
+            >
+              <BtnsGroupRow />
+            </div>
+          </div>
           {selectBox && (
             <div
               className="select-box"
