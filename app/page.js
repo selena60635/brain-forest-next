@@ -1,11 +1,13 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FaGithub } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
 import { FaPhone } from "react-icons/fa6";
 
 export default function Home() {
   const user = false;
+  // console.log();
   return (
     <>
       <section
@@ -30,8 +32,13 @@ export default function Home() {
               <br />
               Nurture Idea Trees
             </h3>
-
-            <img className="w-4/12" src="motionTest.jpg" alt=""></img>
+            <Image
+              src="/motionTest.jpg"
+              alt="motionTest"
+              width="1000"
+              height="1000"
+              className="w-4/12 relative"
+            />
           </div>
         </div>
       </section>
@@ -51,18 +58,23 @@ export default function Home() {
                   clearly visible.
                 </p>
               </div>
-              <img
-                className="rounded-r-full w-96"
-                src="Idea visualization.jpg"
+              <Image
+                src="/Idea visualization.jpg"
                 alt="Idea visualization"
-              ></img>
+                width="1000"
+                height="1000"
+                className="rounded-r-full w-96"
+              />
             </li>
             <li className="flex justify-between drop-shadow-md justify-self-start w-3/4 ml-auto">
-              <img
+              <Image
+                width="1000"
+                height="1000"
                 className="rounded-l-full w-96"
-                src="Rich Style Tools.jpg"
+                src="/Rich Style Tools.jpg"
                 alt="Rich Style Tools"
-              ></img>
+              />
+
               <div className="rounded-r-full bg-secondary p-8">
                 <h4 className="text-xl font-semibold mb-2">Rich Style Tools</h4>
                 <p>
@@ -81,14 +93,23 @@ export default function Home() {
                   tree with others, allowing creativity to grow together.
                 </p>
               </div>
-              <img
+              <Image
+                width="1000"
+                height="1000"
                 className="rounded-r-full w-96"
-                src="Share Your Idea Tree.jpg"
+                src="/Share Your Idea Tree.jpg"
                 alt="Share Your Idea Tree"
-              ></img>
+              />
             </li>
             <li className="flex justify-between drop-shadow-md justify-self-start w-3/4 ml-auto">
-              <img className="rounded-l-full w-96" src="AI.jpg" alt="AI"></img>
+              <Image
+                width="1000"
+                height="1000"
+                className="rounded-l-full w-96"
+                src="/AI.jpg"
+                alt="AI"
+              />
+
               <div className="rounded-r-full bg-secondary p-8">
                 <h4 className="text-xl font-semibold mb-2">
                   AI Generation Tool
