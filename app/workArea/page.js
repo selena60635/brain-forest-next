@@ -54,6 +54,28 @@ export default function WorkArea() {
     }),
     []
   );
+  const newChildNode = useMemo(
+    () => ({
+      id: uuidv4(),
+      name: "Subtopic",
+      isNew: true,
+      children: [],
+      bkColor: "#17493b",
+      pathColor: "#17493b",
+      outline: { color: "#17493b", width: "3px", style: "none" },
+      font: {
+        family: "Noto Sans TC",
+        size: "16px",
+        weight: "400",
+        color: "#FFFFFF",
+      },
+      path: {
+        width: "3",
+        style: "solid",
+      },
+    }),
+    []
+  );
   const nodeRefs = useRef([]);
 
   //取得節點canvas位置
@@ -126,6 +148,27 @@ export default function WorkArea() {
     setSelectBox(null);
   };
 
+  const findParentNode = useCallback(
+    (nodes) => {
+      let parentNode = null;
+      const find = (nodes) => {
+        for (let node of nodes) {
+          if (node.children && node.children.length > 0) {
+            if (node.children.some((child) => child.id === selectedNodes[0])) {
+              parentNode = node;
+              return;
+            }
+            find(node.children);
+          }
+        }
+      };
+
+      find(nodes);
+      return parentNode;
+    },
+    [selectedNodes]
+  );
+
   const addNode = () => {
     const newNodeInstance = {
       ...newNode,
@@ -159,6 +202,78 @@ export default function WorkArea() {
     nodeRefs.current.splice(selectedNodeIndex + 1, 0, React.createRef());
   }, [nodes, newNode, selectedNodes, setNodes, setSelectedNodes, nodeRefs]);
 
+  const addChildNode = useCallback(
+    (parentId) => {
+      const newChildInstance = {
+        ...newChildNode,
+        id: uuidv4(),
+      };
+
+      const addChildToParent = (nodes) =>
+        nodes.map((node) => {
+          if (node.id === parentId) {
+            return {
+              ...node,
+              children: [...(node.children || []), newChildInstance],
+            };
+          } else if (node.children && node.children.length > 0) {
+            return {
+              ...node,
+              children: addChildToParent(node.children),
+            };
+          }
+          return node;
+        });
+      setNodes((prev) => addChildToParent(prev));
+      setSelectedNodes([newChildInstance.id]);
+    },
+    [setNodes, setSelectedNodes, newChildNode]
+  );
+
+  const addSiblingChildNode = useCallback(
+    (parentNode) => {
+      const selectedNodeIndex = parentNode.children.findIndex(
+        (child) => child.id === selectedNodes[0]
+      );
+      const newChildInstance = {
+        ...newChildNode,
+        id: uuidv4(),
+      };
+      const addSibling = (nodes) => {
+        return nodes.map((node) => {
+          if (node.id === parentNode.id) {
+            return {
+              ...node,
+              children: [
+                ...node.children.slice(0, selectedNodeIndex + 1),
+                newChildInstance,
+                ...node.children.slice(selectedNodeIndex + 1),
+              ],
+            };
+          } else if (node.children && node.children.length > 0) {
+            return {
+              ...node,
+              children: addSibling(node.children),
+            };
+          }
+          return node;
+        });
+      };
+
+      setNodes((prev) => addSibling(prev));
+      setSelectedNodes([newChildInstance.id]);
+      if (!nodeRefs.current[parentNode.id]) {
+        nodeRefs.current[parentNode.id] = [];
+      }
+      nodeRefs.current[parentNode.id].splice(
+        selectedNodeIndex + 1,
+        0,
+        React.createRef()
+      );
+    },
+    [selectedNodes, setNodes, setSelectedNodes, nodeRefs, newChildNode]
+  );
+
   return (
     <div className={`flex w-full`}>
       <div className={`transition-all duration-300 ease-in-out w-screen`}>
@@ -191,8 +306,11 @@ export default function WorkArea() {
               selectedNodes={selectedNodes}
               setSelectedNodes={setSelectedNodes}
               getNodeCanvasLoc={getNodeCanvasLoc}
+              findParentNode={findParentNode}
               addNode={addNode}
               addSiblingNode={addSiblingNode}
+              addChildNode={addChildNode}
+              addSiblingChildNode={addSiblingChildNode}
             />
           </div>
         </div>

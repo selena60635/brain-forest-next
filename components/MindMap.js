@@ -14,8 +14,11 @@ export default function MindMap({
   selectBox,
   rootRef,
   getNodeCanvasLoc,
+  findParentNode,
   addNode,
   addSiblingNode,
+  addChildNode,
+  addSiblingChildNode,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -101,17 +104,31 @@ export default function MindMap({
       if (isNodeSelected(rootRect)) {
         selected.push(rootNode.id);
       }
-      nodes.forEach((node, index) => {
-        //取得當前節點的引用
-        const nodeRef = nodeRefs.current[index];
-        if (nodeRef) {
-          const nodeRect = getNodeCanvasLoc(nodeRef); // 取得當前節點在canvas上的位置
-          if (isNodeSelected(nodeRect)) {
-            //若當前節點在選擇範圍內，將節點ID加入到selected中
-            selected.push(node.id);
+      //一層層遞迴遍歷nodes中所有的節點，判斷每一個節點是否有被選中
+      const traverseNodes = (nodes, refs, parentRefs) => {
+        nodes.forEach((node, index) => {
+          //取得當前節點的引用
+          const nodeRef = parentRefs
+            ? parentRefs.current[index]
+            : refs.current[index];
+
+          if (nodeRef) {
+            const nodeRect = getNodeCanvasLoc(nodeRef); // 取得當前節點在canvas上的位置
+            if (isNodeSelected(nodeRect)) {
+              //若當前節點在選擇範圍內，將節點ID加入到selected中
+              selected.push(node.id);
+            }
+            if (node.children) {
+              //將當前節點的children、children中子節點的引用、子節點的父節點引用傳入，遞迴一層層遍歷子節點
+              traverseNodes(node.children, nodeRefs, {
+                current: nodeRefs.current[node.id],
+              });
+            }
           }
-        }
-      });
+        });
+      };
+
+      traverseNodes(nodes, nodeRefs); //開始遞迴遍歷所有節點
 
       setSelectedNodes((prev) => {
         const newSelectedNodes = prev.filter((id) => selected.includes(id));
@@ -147,6 +164,12 @@ export default function MindMap({
         if (selectedNodes[0] === rootNode.id) {
           addNode();
           return;
+        }
+
+        const parentNode = findParentNode([rootNode, ...nodes]);
+
+        if (parentNode && parentNode.children.length > 0) {
+          addSiblingChildNode(parentNode);
         } else {
           addSiblingNode();
         }
@@ -154,10 +177,22 @@ export default function MindMap({
       if (e.key === "Tab" && selectedNodes.length === 1) {
         if (selectedNodes[0] === rootNode.id) {
           addNode();
+        } else {
+          addChildNode(selectedNodes[0]);
         }
       }
     },
-    [selectedNodes, addNode, addSiblingNode, rootNode, selectBox]
+    [
+      selectedNodes,
+      addNode,
+      addSiblingNode,
+      rootNode,
+      selectBox,
+      addChildNode,
+      addSiblingChildNode,
+      findParentNode,
+      nodes,
+    ]
   );
 
   useEffect(() => {
