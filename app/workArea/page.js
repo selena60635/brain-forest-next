@@ -7,6 +7,40 @@ import BtnsGroupRow from "../../components/BtnsGroupRow";
 import Shortcuts from "../../components/Shortcuts";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
+  return nodes.map((node) => {
+    let updatedNode = { ...node };
+
+    if (selectedNodes.includes(node.id)) {
+      updatedNode = {
+        ...updatedNode,
+        ...updateFn(updatedNode),
+      };
+    }
+
+    if (node.summary && selectedNodes.includes(node.summary.id)) {
+      updatedNode = {
+        ...updatedNode,
+        summary: {
+          ...updatedNode.summary,
+          ...updateFn(updatedNode.summary),
+        },
+      };
+    }
+
+    if (node.children && node.children.length > 0) {
+      updatedNode.children = updateSelectedNodes(
+        updatedNode.children,
+        selectedNodes,
+        updateFn
+      );
+    }
+
+    return updatedNode;
+  });
+};
+
 export default function WorkArea() {
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
@@ -81,6 +115,7 @@ export default function WorkArea() {
     []
   );
   const nodeRefs = useRef([]);
+  const sumRefs = useRef([]);
 
   //取得節點canvas位置
   const getNodeCanvasLoc = useCallback(
@@ -284,7 +319,14 @@ export default function WorkArea() {
       return nodes.filter((node) => {
         // 檢查節點是否在刪除ID列表中
         const isNodeToDelete = idsToDelete.includes(node.id);
-
+        // 如果節點有總結節點，檢查是否需要刪除總結節點
+        if (
+          node.summary &&
+          (isNodeToDelete || idsToDelete.includes(node.summary.id))
+        ) {
+          delete sumRefs.current[node.summary.id];
+          delete node.summary; // 刪除節點上的 summary 屬性
+        }
         // 如果節點本身需要刪除，返回 false 過濾掉它
         if (isNodeToDelete) {
           return false;
@@ -311,6 +353,39 @@ export default function WorkArea() {
     setSelectedNodes([]);
   }, []);
 
+  const addSummary = useCallback(() => {
+    setNodes((prev) =>
+      updateSelectedNodes(prev, selectedNodes, (node) => {
+        if (!node.summary) {
+          const sumId = uuidv4();
+          sumRefs.current[sumId] = React.createRef();
+          setSelectedNodes([sumId]);
+
+          return {
+            summary: {
+              id: sumId,
+              isNew: true,
+              name: "summary",
+              pathColor: "#000",
+              outline: { color: "#000", width: "3px", style: "none" },
+              font: {
+                family: "Noto Sans TC",
+                size: "16px",
+                weight: "400",
+                color: "#000",
+              },
+              path: {
+                width: "2",
+                style: "0",
+              },
+            },
+          };
+        }
+        return {};
+      })
+    );
+  }, [selectedNodes]);
+
   return (
     <div className={`flex w-full`}>
       <div className={`transition-all duration-300 ease-in-out w-screen`}>
@@ -332,6 +407,7 @@ export default function WorkArea() {
                 addSiblingChildNode={addSiblingChildNode}
                 addChildNode={addChildNode}
                 delNode={delNode}
+                addSummary={addSummary}
               />
             </div>
 
@@ -373,6 +449,8 @@ export default function WorkArea() {
               addChildNode={addChildNode}
               addSiblingChildNode={addSiblingChildNode}
               delNode={delNode}
+              sumRefs={sumRefs}
+              addSummary={addSummary}
             />
           </div>
         </div>

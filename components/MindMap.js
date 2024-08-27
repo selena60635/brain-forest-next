@@ -20,6 +20,8 @@ export default function MindMap({
   addChildNode,
   addSiblingChildNode,
   delNode,
+  addSummary,
+  sumRefs,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -131,6 +133,16 @@ export default function MindMap({
 
       traverseNodes(nodes, nodeRefs); //開始遞迴遍歷所有節點
 
+      //判斷所有的總結節點是否在選取框範圍內
+      for (let id in sumRefs.current) {
+        if (sumRefs.current[id]?.current) {
+          const sumRect = getNodeCanvasLoc(sumRefs.current[id]); // 取得總結節點的位置
+          if (isNodeSelected(sumRect)) {
+            selected.push(id); // 若被選中，將 summary.id 加入到 selected 中
+          }
+        }
+      }
+
       setSelectedNodes((prev) => {
         const newSelectedNodes = prev.filter((id) => selected.includes(id));
         selected.forEach((id) => {
@@ -150,6 +162,7 @@ export default function MindMap({
     rootRef,
     nodeRefs,
     nodes,
+    sumRefs,
   ]);
 
   const handleKeyDown = useCallback(
@@ -188,6 +201,14 @@ export default function MindMap({
       if (e.key === "Delete" && selectedNodes.length > 0) {
         delNode(selectedNodes);
       }
+      //add summary
+      if (e.altKey && e.key === "s") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (selectedNodes.length > 0 && !selectedNodes.includes(rootNode.id)) {
+          addSummary();
+        }
+      }
     },
     [
       selectedNodes,
@@ -200,6 +221,7 @@ export default function MindMap({
       findParentNode,
       nodes,
       delNode,
+      addSummary,
     ]
   );
 
@@ -232,6 +254,8 @@ export default function MindMap({
               isSelected={selectedNodes.includes(node.id)}
               selectedNodes={selectedNodes}
               setSelectedNodes={setSelectedNodes}
+              sumRefs={sumRefs}
+              isSelectedSum={selectedNodes.includes(node.summary?.id)}
             />
           ))}
         </div>

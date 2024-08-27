@@ -12,6 +12,7 @@ export default function BtnsGroupCol({
   addSiblingChildNode,
   addChildNode,
   delNode,
+  addSummary,
 }) {
   const handleAddSiblingNode = (e) => {
     e.stopPropagation();
@@ -47,6 +48,12 @@ export default function BtnsGroupCol({
     }
   };
 
+  const handleAddSummary = (e) => {
+    e.stopPropagation();
+    if (selectedNodes.length > 0 && !selectedNodes.includes(rootNode.id)) {
+      addSummary();
+    }
+  };
   return (
     <div className="space-y-4">
       <div className="btns-group flex-col w-12">
@@ -91,7 +98,10 @@ export default function BtnsGroupCol({
           </svg>
         </Button>
 
-        <Button className="btn aspect-square text-gray-700">
+        <Button
+          className="btn aspect-square text-gray-700"
+          onClick={handleAddSummary}
+        >
           <svg
             height="24px"
             viewBox="0 -960 960 960"

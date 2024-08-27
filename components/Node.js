@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { selectText } from "./RootNode";
-
+import Summary from "./Summary";
 // 子節點組件
 const ChildNode = ({
   childNode,
@@ -13,6 +13,8 @@ const ChildNode = ({
   setSelectedNodes,
   selectedNodes,
   parentRef,
+  sumRefs,
+  isSelectedSum,
 }) => {
   const [isEditing, setIsEditing] = useState(childNode.isNew);
   const inputRef = useRef(null);
@@ -95,7 +97,9 @@ const ChildNode = ({
 
   return (
     <div
-      className={`flex items-center ml-24`}
+      className={`flex items-center ml-24 ${
+        isSelectedSum ? "selected-sum" : ""
+      }`}
       style={{
         "--outline-width": `${
           childNode.outline.style !== "none"
@@ -184,11 +188,21 @@ const ChildNode = ({
                   nodeRefs.current[childNode.id][index] ||
                   (nodeRefs.current[childNode.id][index] = React.createRef())
                 } //子節點引用為上一層子節點的對應索引位置元素，若沒有這個引用則建立一個新的引用
+                sumRefs={sumRefs}
+                isSelectedSum={selectedNodes.includes(subchildNode.summary?.id)}
               />
             );
           })}
       </div>
-
+      {childNode.summary && (
+        <Summary
+          summary={childNode.summary}
+          nodes={nodes}
+          setNodes={setNodes}
+          sumRefs={sumRefs}
+          isSelectedSum={isSelectedSum}
+        />
+      )}
       <svg className="subLines" overflow="visible" ref={svgRef}>
         <path
           d={`M ${childLoc.x} ${childLoc.y} Q ${childLoc.x} ${childLoc.childY}, ${childLoc.childX} ${childLoc.childY}`}
@@ -211,6 +225,8 @@ export default function Node({
   isSelected,
   selectedNodes,
   setSelectedNodes,
+  sumRefs,
+  isSelectedSum,
 }) {
   const [isEditing, setIsEditing] = useState(node.isNew);
   const inputRef = useRef(null);
@@ -250,7 +266,16 @@ export default function Node({
     setIsEditing(false);
   };
   return (
-    <div className={`flex items-center ml-40 `}>
+    <div
+      className={`flex items-center ml-40 ${
+        isSelectedSum ? "selected-sum" : ""
+      }`}
+      style={{
+        "--outline-width": `${
+          node.outline.style !== "none" ? parseInt(node.outline.width, 10) : 0
+        }px`,
+      }}
+    >
       <div
         className={`node ${isSelected ? "selected" : ""}`}
         style={{
@@ -305,6 +330,7 @@ export default function Node({
           <span>{node.name}</span>
         )}
       </div>
+
       {node.children && node.children.length > 0 && (
         <div className="children flex flex-col items-start ">
           {node.children.map((childNode, childIndex) => {
@@ -327,10 +353,22 @@ export default function Node({
                 nodeRefs={nodeRefs}
                 setSelectedNodes={setSelectedNodes}
                 selectedNodes={selectedNodes}
+                sumRefs={sumRefs}
+                isSelectedSum={selectedNodes.includes(childNode.summary?.id)}
               />
             );
           })}
         </div>
+      )}
+
+      {node.summary && (
+        <Summary
+          summary={node.summary}
+          nodes={nodes}
+          setNodes={setNodes}
+          sumRefs={sumRefs}
+          isSelectedSum={isSelectedSum}
+        />
       )}
     </div>
   );
