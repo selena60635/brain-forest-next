@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useLayoutEffect,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import MindMap from "../../components/MindMap";
 import BtnsGroupCol from "../../components/BtnsGroupCol";
@@ -222,6 +228,18 @@ export default function WorkArea() {
 
     window.addEventListener("mousemove", handlePanMouseMove);
     window.addEventListener("mouseup", handlePanMouseUp);
+  };
+  //設定PanMode開/關，及滑鼠樣式
+  const togglePanMode = () => {
+    setIsPanMode((prev) => {
+      const newPanMode = !prev;
+      if (newPanMode) {
+        canvasRef.current.style.cursor = "grab";
+      } else {
+        canvasRef.current.style.cursor = "auto";
+      }
+      return newPanMode;
+    });
   };
 
   const findParentNode = useCallback(
@@ -526,19 +544,44 @@ export default function WorkArea() {
     //   console.log("你不能關聯自己");
     // }
   };
-
-  //設定PanMode開/關，及滑鼠樣式
-  const togglePanMode = () => {
-    setIsPanMode((prev) => {
-      const newPanMode = !prev;
-      if (newPanMode) {
-        canvasRef.current.style.cursor = "grab";
-      } else {
-        canvasRef.current.style.cursor = "auto";
+  //滾動至畫布的中心點(根節點)
+  const scrollToCenter = useCallback(
+    (behavior) => {
+      if (canvasRef.current && rootRef.current) {
+        const rootPosition = getNodeCanvasLoc(rootRef);
+        const { clientWidth, clientHeight } = canvasRef.current;
+        const scrollToX =
+          rootPosition.left -
+          clientWidth / 2 +
+          (rootPosition.right - rootPosition.left) / 2;
+        const scrollToY =
+          rootPosition.top -
+          clientHeight / 2 +
+          (rootPosition.bottom - rootPosition.top) / 2;
+        canvasRef.current.scrollTo({
+          left: scrollToX,
+          top: scrollToY,
+          behavior: behavior,
+        });
       }
-      return newPanMode;
-    });
-  };
+    },
+    [canvasRef, rootRef, getNodeCanvasLoc]
+  );
+  // 初始渲染設定
+  useLayoutEffect(() => {
+    const handleTab = (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("keydown", handleTab);
+    if (rootRef.current) {
+      scrollToCenter("auto");
+    }
+    return () => {
+      window.removeEventListener("keydown", handleTab);
+    };
+  }, [scrollToCenter, rootRef]);
 
   return (
     <>
@@ -580,6 +623,7 @@ export default function WorkArea() {
                 <BtnsGroupRow
                   togglePanMode={togglePanMode}
                   isPanMode={isPanMode}
+                  scrollToCenter={scrollToCenter}
                 />
               </div>
             </div>
@@ -627,6 +671,7 @@ export default function WorkArea() {
                 btnsRef={btnsRef}
                 isPanMode={isPanMode}
                 handleLinkMode={handleLinkMode}
+                scrollToCenter={scrollToCenter}
               />
             </div>
           </div>

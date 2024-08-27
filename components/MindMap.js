@@ -37,6 +37,7 @@ export default function MindMap({
   isPanMode,
 
   handleLinkMode,
+  scrollToCenter,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -189,7 +190,7 @@ export default function MindMap({
       if (
         (["Enter", "Delete", "Tab"].includes(e.key) &&
           selectedNodes.length === 1) ||
-        [" "].includes(e.key)
+        [" ", "F1"].includes(e.key)
       ) {
         e.preventDefault();
         e.stopPropagation();
@@ -224,6 +225,10 @@ export default function MindMap({
       //pan mode
       if (e.key === " ") {
         togglePanMode();
+      }
+      //ToCenter
+      if (e.key === "F1") {
+        scrollToCenter("smooth");
       }
       //add summary
       if (e.altKey && e.key === "s") {
