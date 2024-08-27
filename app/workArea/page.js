@@ -205,7 +205,7 @@ export default function WorkArea() {
     });
     setSelectedNodes([newNodeInstance.id]);
     nodeRefs.current.splice(selectedNodeIndex + 1, 0, React.createRef());
-  }, [nodes, newNode, selectedNodes, setNodes, setSelectedNodes, nodeRefs]);
+  }, [nodes, newNode, selectedNodes]);
 
   const addChildNode = useCallback(
     (parentId) => {
@@ -279,6 +279,38 @@ export default function WorkArea() {
     [selectedNodes, setNodes, setSelectedNodes, nodeRefs, newChildNode]
   );
 
+  const delNode = useCallback((idArr) => {
+    const deleteNodes = (nodes, idsToDelete) => {
+      return nodes.filter((node) => {
+        // 檢查節點是否在刪除ID列表中
+        const isNodeToDelete = idsToDelete.includes(node.id);
+
+        // 如果節點本身需要刪除，返回 false 過濾掉它
+        if (isNodeToDelete) {
+          return false;
+        }
+        // 遞迴檢查並更新子節點
+        if (node.children) {
+          node.children = deleteNodes(node.children, idsToDelete);
+        }
+
+        return true;
+      });
+    };
+
+    setNodes((prev) => {
+      const newNodes = deleteNodes(prev, idArr);
+
+      nodeRefs.current = nodeRefs.current.filter(
+        (item, index) => !idArr.includes(prev[index]?.id)
+      );
+
+      return newNodes;
+    });
+
+    setSelectedNodes([]);
+  }, []);
+
   return (
     <div className={`flex w-full`}>
       <div className={`transition-all duration-300 ease-in-out w-screen`}>
@@ -299,6 +331,7 @@ export default function WorkArea() {
                 addSiblingNode={addSiblingNode}
                 addSiblingChildNode={addSiblingChildNode}
                 addChildNode={addChildNode}
+                delNode={delNode}
               />
             </div>
 
@@ -339,6 +372,7 @@ export default function WorkArea() {
               addSiblingNode={addSiblingNode}
               addChildNode={addChildNode}
               addSiblingChildNode={addSiblingChildNode}
+              delNode={delNode}
             />
           </div>
         </div>

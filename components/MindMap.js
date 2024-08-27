@@ -19,6 +19,7 @@ export default function MindMap({
   addSiblingNode,
   addChildNode,
   addSiblingChildNode,
+  delNode,
 }) {
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
@@ -156,7 +157,10 @@ export default function MindMap({
       if (selectBox) {
         return;
       }
-      if (["Enter", "Tab"].includes(e.key) && selectedNodes.length === 1) {
+      if (
+        ["Enter", "Tab", "Delete"].includes(e.key) &&
+        selectedNodes.length === 1
+      ) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -181,6 +185,9 @@ export default function MindMap({
           addChildNode(selectedNodes[0]);
         }
       }
+      if (e.key === "Delete" && selectedNodes.length > 0) {
+        delNode(selectedNodes);
+      }
     },
     [
       selectedNodes,
@@ -192,6 +199,7 @@ export default function MindMap({
       addSiblingChildNode,
       findParentNode,
       nodes,
+      delNode,
     ]
   );
 

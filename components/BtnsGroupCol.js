@@ -11,6 +11,7 @@ export default function BtnsGroupCol({
   addSiblingNode,
   addSiblingChildNode,
   addChildNode,
+  delNode,
 }) {
   const handleAddSiblingNode = (e) => {
     e.stopPropagation();
@@ -36,6 +37,13 @@ export default function BtnsGroupCol({
         return;
       }
       addChildNode(selectedNodes[0]);
+    }
+  };
+
+  const handleDelNode = (e) => {
+    e.stopPropagation();
+    if (selectedNodes.length > 0) {
+      delNode(selectedNodes);
     }
   };
 
@@ -94,7 +102,7 @@ export default function BtnsGroupCol({
           </svg>
         </Button>
         <Button className="btn aspect-square text-gray-700">
-          <RiDeleteBinLine size={22} />
+          <RiDeleteBinLine size={22} onClick={handleDelNode} />
         </Button>
       </div>
       <div className="btns-group flex-col w-12">
