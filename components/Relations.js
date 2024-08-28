@@ -6,7 +6,7 @@ export default function Relations({
   nodes,
   nodeRefs,
   rels,
-
+  zoomLevel,
   relMode,
   setRelMode,
   setRels,
@@ -14,8 +14,8 @@ export default function Relations({
   setSelectedRelId,
   relRefs,
   btnsRef,
+  isPanMode,
   setIsAnyEditing,
-  zoomLevel,
 }) {
   const relsSvgRef = useRef(null);
   const tempControlPointsRef = useRef({});
@@ -47,7 +47,15 @@ export default function Relations({
   //控制點擊事件操作
   useEffect(() => {
     const handleGlobalClick = (e) => {
-      if (e.button !== 0 || btnsRef.current.contains(e.target)) return;
+      const isClickInTab = e.target.closest(".tool-box");
+
+      if (
+        e.button !== 0 ||
+        btnsRef.current.contains(e.target) ||
+        isPanMode ||
+        isClickInTab
+      )
+        return;
       if (!relMode) {
         //關聯模式關閉時
         const isClickRelRefs = Object.values(relRefs.current).some((ref) =>
@@ -87,6 +95,7 @@ export default function Relations({
     setSelectedRelId,
     relRefs,
     btnsRef,
+    isPanMode,
   ]);
 
   const findNodeWithIndex = useCallback(

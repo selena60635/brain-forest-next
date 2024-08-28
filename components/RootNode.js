@@ -18,7 +18,6 @@ export default function RootNode({
   setRootNode,
   rootRef,
   isSelected,
-
   handleNodeClick,
   setIsAnyEditing,
   zoomLevel,

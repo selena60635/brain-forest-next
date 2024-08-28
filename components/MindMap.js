@@ -319,6 +319,7 @@ export default function MindMap({
           nodes={nodes}
           nodeRefs={nodeRefs}
           rels={rels}
+          zoomLevel={zoomLevel}
           relMode={relMode}
           setRelMode={setRelMode}
           setRels={setRels}
@@ -328,7 +329,6 @@ export default function MindMap({
           btnsRef={btnsRef}
           isPanMode={isPanMode}
           setIsAnyEditing={setIsAnyEditing}
-          zoomLevel={zoomLevel}
         />
 
         <RootNode

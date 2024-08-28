@@ -31,6 +31,8 @@ export default function WorkArea() {
   const [relFromNode, setRelFromNode] = useState(null);
   const [selectedRelId, setSelectedRelId] = useState(null);
 
+  const [fontFamily, setFontFamily] = useState("Noto Sans TC");
+
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
   const canvasRef = useRef(null); //用來引用並存儲畫布Dom
@@ -43,7 +45,7 @@ export default function WorkArea() {
     pathColor: "#17493b",
     outline: { color: "#17493b", width: "3px", style: "none" },
     font: {
-      family: "Noto Sans TC",
+      family: fontFamily,
       size: "24px",
       weight: "400",
       color: "#FFFFFF",
@@ -64,7 +66,7 @@ export default function WorkArea() {
       pathColor: "#17493b",
       outline: { color: "#17493b", width: "3px", style: "none" },
       font: {
-        family: "Noto Sans TC",
+        family: fontFamily,
         size: "20px",
         weight: "400",
         color: "#FFFFFF",
@@ -74,7 +76,7 @@ export default function WorkArea() {
         style: "solid",
       },
     }),
-    []
+    [fontFamily]
   );
   const newChildNode = useMemo(
     () => ({
@@ -86,7 +88,7 @@ export default function WorkArea() {
       pathColor: "#17493b",
       outline: { color: "#17493b", width: "3px", style: "none" },
       font: {
-        family: "Noto Sans TC",
+        family: fontFamily,
         size: "16px",
         weight: "400",
         color: "#FFFFFF",
@@ -96,7 +98,7 @@ export default function WorkArea() {
         style: "solid",
       },
     }),
-    []
+    [fontFamily]
   );
 
   const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
@@ -460,7 +462,7 @@ export default function WorkArea() {
               pathColor: "#000",
               outline: { color: "#000", width: "3px", style: "none" },
               font: {
-                family: "Noto Sans TC",
+                family: fontFamily,
                 size: "16px",
                 weight: "400",
                 color: "#000",
@@ -475,7 +477,7 @@ export default function WorkArea() {
         return {};
       })
     );
-  }, [selectedNodes]);
+  }, [selectedNodes, fontFamily]);
 
   const isSummaryNode = (nodes, from) => {
     return nodes.some((node) => {
@@ -508,7 +510,7 @@ export default function WorkArea() {
               name: "Relationship",
               pathColor: "#000",
               font: {
-                family: "Noto Sans TC",
+                family: fontFamily,
                 size: "16px",
                 weight: "400",
                 color: "#000",
@@ -524,7 +526,7 @@ export default function WorkArea() {
         setRelFromNode(null);
       }
     },
-    [relMode, relFromNode]
+    [relMode, relFromNode, fontFamily]
   );
 
   const handleNodeClick = (nodeId, e) => {
@@ -776,6 +778,8 @@ export default function WorkArea() {
               rels={rels}
               setRels={setRels}
               selectedRelId={selectedRelId}
+              fontFamily={fontFamily}
+              setFontFamily={setFontFamily}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
               <Button
