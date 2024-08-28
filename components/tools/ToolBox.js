@@ -11,8 +11,49 @@ import {
 } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
+import ShapeTool from "../tools/ShapeTool";
 
-export default function ToolBox({ selectedNodes, selectedRelId }) {
+export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
+  return nodes.map((node) => {
+    let updatedNode = { ...node };
+
+    if (selectedNodes.includes(node.id)) {
+      updatedNode = {
+        ...updatedNode,
+        ...updateFn(updatedNode),
+      };
+    }
+
+    if (node.summary && selectedNodes.includes(node.summary.id)) {
+      updatedNode = {
+        ...updatedNode,
+        summary: {
+          ...updatedNode.summary,
+          ...updateFn(updatedNode.summary),
+        },
+      };
+    }
+
+    if (node.children && node.children.length > 0) {
+      updatedNode.children = updateSelectedNodes(
+        updatedNode.children,
+        selectedNodes,
+        updateFn
+      );
+    }
+
+    return updatedNode;
+  });
+};
+export default function ToolBox({
+  rootNode,
+  setRootNode,
+  nodes,
+  setNodes,
+  selectedNodes,
+  findNode,
+  selectedRelId,
+}) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
 
   useEffect(() => {
@@ -48,7 +89,14 @@ export default function ToolBox({ selectedNodes, selectedRelId }) {
         </TabList>
         <TabPanels className="text-gray-700 text-sm">
           <TabPanel>
-            <div>tab1</div>
+            <ShapeTool
+              rootNode={rootNode}
+              setRootNode={setRootNode}
+              nodes={nodes}
+              setNodes={setNodes}
+              selectedNodes={selectedNodes}
+              findNode={findNode}
+            />
             <Disclosure as="div" className="p-4 border-t" defaultOpen={true}>
               <DisclosureButton className="group flex w-full items-center">
                 <ChevronDownIcon className="-rotate-90 size-5 fill-gray-400 group-data-[hover]:fill-gray-700 group-data-[open]:rotate-0" />

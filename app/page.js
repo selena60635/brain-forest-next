@@ -7,7 +7,7 @@ import { FaPhone } from "react-icons/fa6";
 
 export default function Home() {
   const user = false;
-  // console.log();
+
   return (
     <>
       <section

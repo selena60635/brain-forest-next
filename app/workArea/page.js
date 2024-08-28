@@ -10,46 +10,15 @@ import React, {
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@headlessui/react";
 import { PiToolbox } from "react-icons/pi";
+import { updateSelectedNodes } from "../../components/tools/ToolBox";
 import MindMap from "../../components/MindMap";
 import BtnsGroupCol from "../../components/BtnsGroupCol";
 import BtnsGroupRow from "../../components/BtnsGroupRow";
 import Shortcuts from "../../components/Shortcuts";
 import ToolBox from "../../components/tools/ToolBox";
+import "../../utils/setupConsole";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
-  return nodes.map((node) => {
-    let updatedNode = { ...node };
-
-    if (selectedNodes.includes(node.id)) {
-      updatedNode = {
-        ...updatedNode,
-        ...updateFn(updatedNode),
-      };
-    }
-
-    if (node.summary && selectedNodes.includes(node.summary.id)) {
-      updatedNode = {
-        ...updatedNode,
-        summary: {
-          ...updatedNode.summary,
-          ...updateFn(updatedNode.summary),
-        },
-      };
-    }
-
-    if (node.children && node.children.length > 0) {
-      updatedNode.children = updateSelectedNodes(
-        updatedNode.children,
-        selectedNodes,
-        updateFn
-      );
-    }
-
-    return updatedNode;
-  });
-};
 
 export default function WorkArea() {
   const [isPanMode, setIsPanMode] = useState(false);
@@ -270,6 +239,22 @@ export default function WorkArea() {
     },
     [selectedNodes]
   );
+
+  const findNode = useCallback((nodes, id) => {
+    const stack = [...nodes];
+    while (stack.length > 0) {
+      const node = stack.pop();
+      if (node.id === id) {
+        return node;
+      } else if (node.summary && node.summary.id === id) {
+        return node.summary;
+      }
+      if (node.children && node.children.length > 0) {
+        stack.push(...node.children);
+      }
+    }
+    return null;
+  }, []);
 
   const addNode = () => {
     const newNodeInstance = {
@@ -780,7 +765,16 @@ export default function WorkArea() {
             }}
           >
             <ToolBox
+              rootNode={rootNode}
+              setRootNode={setRootNode}
+              nodes={nodes}
+              setNodes={setNodes}
               selectedNodes={selectedNodes}
+              findNode={findNode}
+              setSelectedNodes={setSelectedNodes}
+              nodeRefs={nodeRefs}
+              rels={rels}
+              setRels={setRels}
               selectedRelId={selectedRelId}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
