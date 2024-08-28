@@ -14,6 +14,8 @@ export default function Summary({
 
   sumRefs,
   isSelectedSum,
+  zoomLevel,
+  setIsAnyEditing,
 }) {
   const [isEditing, setIsEditing] = useState(summary.isNew);
   const inputRef = useRef(null);
@@ -59,6 +61,7 @@ export default function Summary({
   // 開啟編輯模式
   const editMode = () => {
     setIsEditing(true);
+    setIsAnyEditing(true);
   };
   // 關閉編輯模式
   const unEditMode = (e) => {
@@ -72,6 +75,7 @@ export default function Summary({
       );
     }
     setIsEditing(false);
+    setIsAnyEditing(false);
   };
 
   //確保在新增總結時，引用中有最新的總結節點，若沒有則建立
@@ -103,8 +107,8 @@ export default function Summary({
       const { x, y, height } = sumLoc;
       const startY = y - height / 2;
       const endY = y + height / 2;
-      const radius = 6;
-      const offset = 20;
+      const radius = 6 * zoomLevel;
+      const offset = 20 * zoomLevel;
 
       setSumPath(`
           M ${x - radius} ${startY + offset}
@@ -116,7 +120,7 @@ export default function Summary({
           h ${radius}
         `);
     }
-  }, [sumRef, sumSvgRef, getSumSvgLoc, summary, nodes]);
+  }, [sumRef, sumSvgRef, getSumSvgLoc, summary, zoomLevel, nodes]);
 
   return (
     <>
@@ -157,9 +161,10 @@ export default function Summary({
                 className="input-box"
                 style={{
                   minWidth: `${
-                    sumNodeRef.current?.getBoundingClientRect().width ?? 94
+                    (sumNodeRef.current?.getBoundingClientRect().width ?? 94) /
+                    zoomLevel
                   }px`,
-                  maxWidth: `${500}px`,
+                  maxWidth: `${500 / zoomLevel}px`,
                   textDecorationLine: `${
                     summary.font.isStrikethrough ? "line-through" : "none"
                   }`,
@@ -185,13 +190,20 @@ export default function Summary({
         </div>
       </div>
 
-      <svg className="summary" overflow="visible" ref={sumSvgRef}>
+      <svg
+        className="summary"
+        overflow="visible"
+        ref={sumSvgRef}
+        style={{
+          transform: `scale(${1 / zoomLevel})`,
+        }}
+      >
         <path
           d={sumPath}
           stroke={summary.pathColor}
           fill="none"
-          strokeWidth={summary.path.width}
-          strokeDasharray={summary.path.style - 24}
+          strokeWidth={summary.path.width * zoomLevel}
+          strokeDasharray={summary.path.style * zoomLevel - 24}
         />
         {/* <circle cx={sumLoc.x} cy={sumLoc.y} r="5" fill="blue" /> */}
       </svg>

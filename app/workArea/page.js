@@ -51,6 +51,7 @@ export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
 export default function WorkArea() {
   const [isPanMode, setIsPanMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const [relMode, setRelMode] = useState(false);
   const [rels, setRels] = useState([]);
@@ -630,6 +631,21 @@ export default function WorkArea() {
     };
   }, [scrollToCenter, rootRef]);
 
+  //設定zoom in/out/reset
+  const handleZoom = (type) => {
+    setZoomLevel((prev) => {
+      if (type === "in") {
+        return Math.min(prev * 1.25, 3); //最大300%
+      } else if (type === "out") {
+        return Math.max(prev * 0.8, 0.4); //最小40%
+      } else if (type === "reset") {
+        return 1;
+      } else {
+        return prev;
+      }
+    });
+  };
+
   return (
     <>
       {relMode && (
@@ -677,6 +693,7 @@ export default function WorkArea() {
                   isPanMode={isPanMode}
                   scrollToCenter={scrollToCenter}
                   toggleFullScreen={toggleFullScreen}
+                  handleZoom={handleZoom}
                 />
               </div>
             </div>
@@ -692,7 +709,14 @@ export default function WorkArea() {
                 }}
               />
             )}
-            <div className={`canvas bg-white`}>
+            <div
+              className={`canvas bg-white`}
+              style={{
+                "--zoomLevel": zoomLevel,
+
+                transform: `scale(${zoomLevel})`,
+              }}
+            >
               <MindMap
                 nodes={nodes}
                 setNodes={setNodes}
@@ -726,6 +750,8 @@ export default function WorkArea() {
                 handleLinkMode={handleLinkMode}
                 scrollToCenter={scrollToCenter}
                 toggleFullScreen={toggleFullScreen}
+                handleZoom={handleZoom}
+                zoomLevel={zoomLevel}
               />
             </div>
           </div>

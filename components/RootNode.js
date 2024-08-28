@@ -20,6 +20,8 @@ export default function RootNode({
   isSelected,
 
   handleNodeClick,
+  setIsAnyEditing,
+  zoomLevel,
 }) {
   const [isEditRoot, setIsEditRoot] = useState(false); //定義根節點編輯模式狀態，初始為false
   const inputRef = useRef(null);
@@ -32,6 +34,7 @@ export default function RootNode({
   // 開啟編輯模式
   const editMode = () => {
     setIsEditRoot(true);
+    setIsAnyEditing(true);
   };
 
   // 關閉編輯模式
@@ -40,6 +43,7 @@ export default function RootNode({
       setRootNode((prev) => ({ ...prev, name: e.target.textContent }));
     }
     setIsEditRoot(false);
+    setIsAnyEditing(false);
   };
 
   return (
@@ -74,9 +78,10 @@ export default function RootNode({
             className="input-box"
             style={{
               minWidth: `${
-                rootRef.current?.getBoundingClientRect().width ?? 128
+                (rootRef.current?.getBoundingClientRect().width ?? 128) /
+                zoomLevel
               }px`,
-              maxWidth: `${500}px`,
+              maxWidth: `${500 / zoomLevel}px`,
               textDecorationLine: `${
                 rootNode.font.isStrikethrough ? "line-through" : "none"
               }`,

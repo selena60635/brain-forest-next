@@ -18,6 +18,8 @@ const ChildNode = ({
   sumRefs,
   isSelectedSum,
   handleNodeClick,
+  setIsAnyEditing,
+  zoomLevel,
 }) => {
   const [isEditing, setIsEditing] = useState(childNode.isNew);
   const inputRef = useRef(null);
@@ -46,6 +48,7 @@ const ChildNode = ({
   //開啟編輯模式
   const editMode = () => {
     setIsEditing(true);
+    setIsAnyEditing(true);
   };
   //關閉編輯模式
   const unEditMode = (e) => {
@@ -77,6 +80,7 @@ const ChildNode = ({
       setNodes((prevNodes) => updateNodeName(prevNodes));
     }
     setIsEditing(false);
+    setIsAnyEditing(false);
   };
   //取得子節點svg位置
   const getChildSvgLoc = (childRef, parentRef, svgRef) => {
@@ -84,11 +88,20 @@ const ChildNode = ({
       const childRect = childRef.current.getBoundingClientRect();
       const parentRect = parentRef.current.getBoundingClientRect();
       const svgRect = svgRef.current.getBoundingClientRect();
+      const parentOffset = parseInt(parentNode.outline.width, 10);
+      const childOffset = parseInt(childNode.outline.width, 10);
 
       return {
-        x: parentRect.left - svgRect.left + parentRect.width,
+        x:
+          parentRect.left -
+          svgRect.left +
+          parentRect.width +
+          (parentNode.outline.style !== "none" ? parentOffset : -2) * zoomLevel,
         y: parentRect.top - svgRect.top + parentRect.height / 2,
-        childX: childRect.left - svgRect.left,
+        childX:
+          childRect.left -
+          svgRect.left -
+          (childNode.outline.style !== "none" ? childOffset : 0) * zoomLevel,
         childY: childRect.top - svgRect.top + childRect.height / 2,
       };
     }
@@ -142,9 +155,10 @@ const ChildNode = ({
               className="input-box"
               style={{
                 minWidth: `${
-                  childRef.current?.getBoundingClientRect().width ?? 82
+                  (childRef.current?.getBoundingClientRect().width ?? 82) /
+                  zoomLevel
                 }px`,
-                maxWidth: `${500}px`,
+                maxWidth: `${500 / zoomLevel}px`,
                 textDecorationLine: `${
                   childNode.font.isStrikethrough ? "line-through" : "none"
                 }`,
@@ -196,6 +210,8 @@ const ChildNode = ({
                 sumRefs={sumRefs}
                 isSelectedSum={selectedNodes.includes(subchildNode.summary?.id)}
                 handleNodeClick={handleNodeClick}
+                setIsAnyEditing={setIsAnyEditing}
+                zoomLevel={zoomLevel}
               />
             );
           })}
@@ -207,15 +223,24 @@ const ChildNode = ({
           setNodes={setNodes}
           sumRefs={sumRefs}
           isSelectedSum={isSelectedSum}
+          setIsAnyEditing={setIsAnyEditing}
+          zoomLevel={zoomLevel}
         />
       )}
-      <svg className="subLines" overflow="visible" ref={svgRef}>
+      <svg
+        className="subLines"
+        overflow="visible"
+        ref={svgRef}
+        style={{
+          transform: `scale(${1 / zoomLevel})`,
+        }}
+      >
         <path
           d={`M ${childLoc.x} ${childLoc.y} Q ${childLoc.x} ${childLoc.childY}, ${childLoc.childX} ${childLoc.childY}`}
           stroke={childNode.pathColor}
           fill="none"
-          strokeWidth={childNode.path.width}
-          strokeDasharray={childNode.path.style}
+          strokeWidth={childNode.path.width * zoomLevel}
+          strokeDasharray={childNode.path.style * zoomLevel || 0}
         />
       </svg>
     </div>
@@ -236,6 +261,8 @@ export default function Node({
   isSelectedSum,
   nodes,
   handleNodeClick,
+  setIsAnyEditing,
+  zoomLevel,
 }) {
   const [isEditing, setIsEditing] = useState(node.isNew);
   const inputRef = useRef(null);
@@ -258,6 +285,7 @@ export default function Node({
   //開啟編輯模式
   const editMode = () => {
     setIsEditing(true);
+    setIsAnyEditing(true);
   };
   //關閉編輯模式
   const unEditMode = (e) => {
@@ -272,6 +300,7 @@ export default function Node({
       });
     }
     setIsEditing(false);
+    setIsAnyEditing(false);
   };
 
   return (
@@ -314,9 +343,10 @@ export default function Node({
               className="input-box"
               style={{
                 minWidth: `${
-                  nodeRef.current?.getBoundingClientRect().width ?? 132
+                  (nodeRef.current?.getBoundingClientRect().width ?? 132) /
+                  zoomLevel
                 }px`,
-                maxWidth: `${500}px`,
+                maxWidth: `${500 / zoomLevel}px`,
                 textDecorationLine: `${
                   node.font.isStrikethrough ? "line-through" : "none"
                 }`,
@@ -367,6 +397,8 @@ export default function Node({
                 sumRefs={sumRefs}
                 isSelectedSum={selectedNodes.includes(childNode.summary?.id)}
                 handleNodeClick={handleNodeClick}
+                setIsAnyEditing={setIsAnyEditing}
+                zoomLevel={zoomLevel}
               />
             );
           })}
@@ -380,6 +412,8 @@ export default function Node({
           setNodes={setNodes}
           sumRefs={sumRefs}
           isSelectedSum={isSelectedSum}
+          setIsAnyEditing={setIsAnyEditing}
+          zoomLevel={zoomLevel}
         />
       )}
     </div>

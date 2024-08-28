@@ -14,6 +14,8 @@ export default function Relations({
   setSelectedRelId,
   relRefs,
   btnsRef,
+  setIsAnyEditing,
+  zoomLevel,
 }) {
   const relsSvgRef = useRef(null);
   const tempControlPointsRef = useRef({});
@@ -28,6 +30,7 @@ export default function Relations({
       width: textWidth + 20,
       height: textHeight + 10,
     });
+    setIsAnyEditing(true);
   };
   const unEditMode = (relId, newValue) => {
     setRels((prev) =>
@@ -39,6 +42,7 @@ export default function Relations({
       })
     );
     setIsEdit(null);
+    setIsAnyEditing(false);
   };
   //控制點擊事件操作
   useEffect(() => {
@@ -135,18 +139,26 @@ export default function Relations({
     [rootNode.id, rootRef]
   );
 
-  const getRelSvgLoc = useCallback((nodeRef, node, svgRef) => {
-    if (nodeRef && nodeRef.current && svgRef.current) {
-      const nodeRect = nodeRef.current.getBoundingClientRect();
-      const svgRect = svgRef.current.getBoundingClientRect();
-
-      return {
-        x: nodeRect.left - svgRect.left + nodeRect.width / 2,
-        y: nodeRect.top - svgRect.top,
-      };
-    }
-    return { x: 0, y: 0 };
-  }, []);
+  const getRelSvgLoc = useCallback(
+    (nodeRef, node, svgRef) => {
+      if (nodeRef && nodeRef.current && svgRef.current) {
+        const nodeRect = nodeRef.current.getBoundingClientRect();
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const offset = parseInt(node?.outline?.width || "0", 10);
+        return {
+          x:
+            (nodeRect.left -
+              svgRect.left -
+              (node?.outline?.style !== "none" ? offset : 0)) /
+              zoomLevel +
+            nodeRect.width / (2 * zoomLevel),
+          y: (nodeRect.top - svgRect.top) / zoomLevel,
+        };
+      }
+      return { x: 0, y: 0 };
+    },
+    [zoomLevel]
+  );
 
   const calcRelPath = useCallback(
     (rel) => {
@@ -186,8 +198,8 @@ export default function Relations({
 
   const handleDrag = (e, rel, pointIndex) => {
     const svgRect = relsSvgRef.current.getBoundingClientRect();
-    const newX = e.clientX - svgRect.left;
-    const newY = e.clientY - svgRect.top;
+    const newX = (e.clientX - svgRect.left) / zoomLevel;
+    const newY = (e.clientY - svgRect.top) / zoomLevel;
 
     tempControlPointsRef.current[pointIndex] = { x: newX, y: newY };
 
@@ -296,7 +308,7 @@ export default function Relations({
                 <circle
                   cx={from.x}
                   cy={from.y}
-                  r={`${5}`}
+                  r={`${5 * zoomLevel}`}
                   fill={rel.pathColor}
                 />
                 <circle cx={to.x} cy={to.y} r={`${5}`} fill={rel.pathColor} />
@@ -304,8 +316,8 @@ export default function Relations({
                   d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
                   stroke={rel.pathColor}
                   fill="none"
-                  strokeWidth={`${1}`}
-                  strokeDasharray={`${5}`}
+                  strokeWidth={`${1 * zoomLevel}`}
+                  strokeDasharray={`${5 * zoomLevel}`}
                 ></path>
                 <path
                   d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
@@ -316,7 +328,7 @@ export default function Relations({
                   d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
                   stroke="rgba(0, 0, 0, 0)"
                   fill="none"
-                  strokeWidth={`${10}`}
+                  strokeWidth={`${10 * zoomLevel}`}
                 ></path>
 
                 {isEdit?.id === rel.id ? (
@@ -363,7 +375,7 @@ export default function Relations({
                       textAnchor="middle"
                       alignmentBaseline="middle"
                       stroke="white"
-                      strokeWidth={`${4}`}
+                      strokeWidth={`${4 * zoomLevel}`}
                       paintOrder="stroke"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -386,7 +398,7 @@ export default function Relations({
                     <circle
                       cx={cp1.x}
                       cy={cp1.y}
-                      r={`${10}`}
+                      r={`${10 * zoomLevel}`}
                       fill="rgba(255, 255, 0, 0)"
                       onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
                       className="cp1"
@@ -394,7 +406,7 @@ export default function Relations({
                     <circle
                       cx={cp1.x}
                       cy={cp1.y}
-                      r={`${5}`}
+                      r={`${5 * zoomLevel}`}
                       fill="red"
                       onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
                       className="cp1"
@@ -402,7 +414,7 @@ export default function Relations({
                     <circle
                       cx={cp2.x}
                       cy={cp2.y}
-                      r={`${10}`}
+                      r={`${10 * zoomLevel}`}
                       fill="rgba(255, 255, 0, 0)"
                       onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
                       className="cp2"
@@ -410,7 +422,7 @@ export default function Relations({
                     <circle
                       cx={cp2.x}
                       cy={cp2.y}
-                      r={`${5}`}
+                      r={`${5 * zoomLevel}`}
                       fill="red"
                       onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
                       className="cp2"
@@ -421,7 +433,7 @@ export default function Relations({
                       x2={cp1.x}
                       y2={cp1.y}
                       stroke="red"
-                      strokeWidth={`${1}`}
+                      strokeWidth={`${1 * zoomLevel}`}
                       className="cp1-line"
                     />
                     <line
@@ -430,7 +442,7 @@ export default function Relations({
                       x2={cp2.x}
                       y2={cp2.y}
                       stroke="red"
-                      strokeWidth={`${1}`}
+                      strokeWidth={`${1 * zoomLevel}`}
                       className="cp2-line"
                     />
                   </>

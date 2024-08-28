@@ -7,6 +7,7 @@ export default function BtnsGroupRow({
   isPanMode,
   scrollToCenter,
   toggleFullScreen,
+  handleZoom,
 }) {
   return (
     <div className="flex space-x-4">
@@ -31,11 +32,11 @@ export default function BtnsGroupRow({
           <HiArrowsPointingOut size={24} />
         </Button>
 
-        <Button className="btn aspect-square">
+        <Button className="btn aspect-square" onClick={() => handleZoom("in")}>
           <MdAdd size={24} />
         </Button>
         <Button className="btn aspect-square">
-          <MdRemove size={24} />
+          <MdRemove size={24} onClick={() => handleZoom("out")} />
         </Button>
       </div>
     </div>

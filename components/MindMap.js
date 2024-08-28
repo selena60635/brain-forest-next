@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from "react";
 import RootNode from "./RootNode";
 import Node from "./Node";
 import Relations from "./Relations";
@@ -39,17 +45,24 @@ export default function MindMap({
   handleLinkMode,
   scrollToCenter,
   toggleFullScreen,
+  handleZoom,
+  zoomLevel,
 }) {
+  const [isAnyEditing, setIsAnyEditing] = useState(false);
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
   //取得根結點svg位置
-  const getRootSvgLoc = () => {
+  const getRootSvgLoc = (outlineWidth) => {
     if (rootRef.current && svgRef.current) {
       const rootRect = rootRef.current.getBoundingClientRect(); // 獲取根節點的矩形物件
       const svgRect = svgRef.current.getBoundingClientRect(); // 獲取 SVG 的矩形物件
-
+      const offset = parseInt(outlineWidth, 10);
       return {
-        x: rootRect.left - svgRect.left + rootRect.width, // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
+        x:
+          rootRect.left -
+          svgRect.left +
+          rootRect.width +
+          (rootNode.outline.style !== "none" ? offset : -2) * zoomLevel, // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
         y: rootRect.top - svgRect.top + rootRect.height / 2, // 計算根節點的中心點相對於g的Y坐標
       };
     }
@@ -59,19 +72,22 @@ export default function MindMap({
 
   //取得節點svg位置
   const getNodeSvgLoc = useCallback(
-    (nodeRef) => {
+    (nodeRef, node) => {
       if (nodeRef && nodeRef.current && svgRef.current) {
         const nodeRect = nodeRef.current.getBoundingClientRect();
         const svgRect = svgRef.current.getBoundingClientRect();
-
+        const offset = parseInt(node.outline.width, 10);
         return {
-          x: nodeRect.left - svgRect.left,
+          x:
+            nodeRect.left -
+            svgRect.left -
+            (node.outline.style !== "none" ? offset : 0) * zoomLevel,
           y: nodeRect.top - svgRect.top + nodeRect.height / 2,
         };
       }
       return { x: 0, y: 0 };
     },
-    [svgRef]
+    [svgRef, zoomLevel]
   );
 
   //更新節點與根節點的連接線
@@ -85,7 +101,7 @@ export default function MindMap({
 
   useLayoutEffect(() => {
     updateLocs();
-  }, [nodesStr, rootNodeStr, updateLocs, rels]);
+  }, [nodesStr, rootNodeStr, updateLocs, zoomLevel, rels]);
 
   //判定是否被選取
   const isNodeSelected = useCallback(
@@ -235,6 +251,19 @@ export default function MindMap({
       if (e.key === "F2") {
         toggleFullScreen();
       }
+      //zoom in/zoom out/reset
+      if (!isAnyEditing) {
+        if (e.key === "=") {
+          e.stopPropagation();
+          handleZoom("in");
+        } else if (e.key === "-") {
+          e.stopPropagation();
+          handleZoom("out");
+        } else if (e.key === "0") {
+          e.stopPropagation();
+          handleZoom("reset");
+        }
+      }
       //add summary
       if (e.altKey && e.key === "s") {
         e.preventDefault();
@@ -269,6 +298,8 @@ export default function MindMap({
       selectedRelId,
       scrollToCenter,
       toggleFullScreen,
+      handleZoom,
+      isAnyEditing,
     ]
   );
 
@@ -296,6 +327,8 @@ export default function MindMap({
           relRefs={relRefs}
           btnsRef={btnsRef}
           isPanMode={isPanMode}
+          setIsAnyEditing={setIsAnyEditing}
+          zoomLevel={zoomLevel}
         />
 
         <RootNode
@@ -304,6 +337,8 @@ export default function MindMap({
           rootRef={rootRef}
           isSelected={selectedNodes.includes(rootNode.id)}
           handleNodeClick={handleNodeClick}
+          setIsAnyEditing={setIsAnyEditing}
+          zoomLevel={zoomLevel}
         />
 
         <div className="flex flex-col items-start">
@@ -323,6 +358,8 @@ export default function MindMap({
               sumRefs={sumRefs}
               isSelectedSum={selectedNodes.includes(node.summary?.id)}
               handleNodeClick={handleNodeClick}
+              setIsAnyEditing={setIsAnyEditing}
+              zoomLevel={zoomLevel}
             />
           ))}
         </div>
@@ -332,6 +369,9 @@ export default function MindMap({
           overflow="visible"
           xmlns="http://www.w3.org/2000/svg"
           ref={svgRef}
+          style={{
+            transform: `scale(${1 / zoomLevel})`,
+          }}
         >
           {nodes.map((node, index) => {
             const nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node);
@@ -341,8 +381,8 @@ export default function MindMap({
                   d={`M${rootSvgLoc.x} ${rootSvgLoc.y} Q ${rootSvgLoc.x} ${nodeLoc.y}, ${nodeLoc.x} ${nodeLoc.y}`}
                   stroke={node.pathColor}
                   fill="none"
-                  strokeWidth={node.path.width}
-                  strokeDasharray={node.path.style}
+                  strokeWidth={node.path.width * zoomLevel}
+                  strokeDasharray={node.path.style * zoomLevel || 0}
                 />
                 {/* <circle cx={nodeLoc.x} cy={nodeLoc.y} r="5" fill="blue" /> */}
               </React.Fragment>

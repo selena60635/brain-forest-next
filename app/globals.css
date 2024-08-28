@@ -90,8 +90,8 @@
 }
 
 .canvas {
-  width: 2000px;
-  height: 2000px;
+  width: 20000px;
+  height: 20000px;
   display: flex;
   justify-content: center;
   align-items: center;
