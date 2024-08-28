@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint && next dev"
+    "lint": "next lint"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.3",

@@ -145,7 +145,7 @@ export default function PathTool({
           ? "solid"
           : "dashed"
       );
-    } else if (selectedNodes.length > 0) {
+    } else if (selectedNodes.length === 1) {
       const selectedNode = findNode([rootNode, ...nodes], selectedNodes[0]);
 
       if (selectedNode) {

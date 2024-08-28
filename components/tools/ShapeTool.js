@@ -18,7 +18,10 @@ export default function ShapeTool({
   nodes,
   setNodes,
   selectedNodes,
+  currentColorStyle,
   findNode,
+  colorStyleEnabled,
+  colorStyleopts,
 }) {
   const [bgColor, setBgColor] = useState("#1A227E");
   const [borderColor, setBorderColor] = useState("#1A227E");
@@ -94,7 +97,7 @@ export default function ShapeTool({
         }));
       }
       setNodes((prev) =>
-        updateSelectedNodes(prev, selectedNodes, (node) => ({
+        updateSelectedNodes(prev, selectedNodes, () => ({
           bkColor: newColor.hex,
         }))
       );
@@ -227,6 +230,23 @@ export default function ShapeTool({
                   className="!shadow-none"
                   disableAlpha={true}
                 />
+                {colorStyleEnabled && (
+                  <div className="bg-white w-full rounded-b border-t text-xs p-2.5">
+                    目前風格
+                    <div className="flex justify-between mt-2">
+                      {colorStyleopts[currentColorStyle - 1]?.colors.map(
+                        (styleColor, index) => (
+                          <div
+                            key={index}
+                            className="w-5 h-5 cursor-pointer"
+                            style={{ backgroundColor: styleColor }}
+                            onClick={() => bgColorChange({ hex: styleColor })}
+                          ></div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -276,6 +296,25 @@ export default function ShapeTool({
                     className="!shadow-none"
                     disableAlpha={true}
                   />
+                  {colorStyleEnabled && (
+                    <div className="bg-white w-full rounded-b border-t text-xs p-2.5">
+                      目前風格
+                      <div className="flex justify-between mt-2">
+                        {colorStyleopts[currentColorStyle - 1]?.colors.map(
+                          (styleColor, index) => (
+                            <div
+                              key={index}
+                              className="w-5 h-5 cursor-pointer"
+                              style={{ backgroundColor: styleColor }}
+                              onClick={() =>
+                                borderColorChange({ hex: styleColor })
+                              }
+                            ></div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

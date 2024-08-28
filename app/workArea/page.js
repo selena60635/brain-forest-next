@@ -34,23 +34,247 @@ export default function WorkArea() {
   const [fontFamily, setFontFamily] = useState("Noto Sans TC");
   const [pathWidth, setPathWidth] = useState("3");
   const [pathStyle, setPathStyle] = useState("solid");
+  const [currentTheme, setCurrentTheme] = useState(0); // 當前主題索引
+  const [currentColorStyle, setCurrentColorStyle] = useState(1); //目前顏色風格索引
+  const [colorIndex, setColorIndex] = useState(0); //目前節點顏色索引
+  const [nodesColor, setNodesColor] = useState("#17493b"); //純色模式目前顏色
 
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
   const canvasRef = useRef(null); //用來引用並存儲畫布Dom
 
+  const themes = useMemo(
+    () => [
+      {
+        name: "繽紛彩虹",
+        colorStyles: [
+          {
+            root: "#000229",
+            text: "#FFFFFF",
+            nodes: [
+              "#FA8155",
+              "#FFAD36",
+              "#B7C82B",
+              "#0098B9",
+              "#7574BC",
+              "#A165A8",
+            ],
+            child: [
+              "#FA8155",
+              "#FFAD36",
+              "#B7C82B",
+              "#0098B9",
+              "#7574BC",
+              "#A165A8",
+            ],
+          },
+          {
+            root: "#000229",
+            text: "#FFFFFF",
+            nodes: [
+              "#F9423A",
+              "#F6A04D",
+              "#F3D321",
+              "#00BC7B",
+              "#486AFF",
+              "#4D49BE",
+            ],
+            child: [
+              "#F9423A",
+              "#F6A04D",
+              "#F3D321",
+              "#00BC7B",
+              "#486AFF",
+              "#4D49BE",
+            ],
+          },
+          {
+            root: "#92C1B7",
+            text: "#000000",
+            nodes: [
+              "#9DCFCE",
+              "#F1CD91",
+              "#EC936B",
+              "#DDB3A4",
+              "#C6CA97",
+              "#F1C2CA",
+            ],
+            child: [
+              "#9DCFCE",
+              "#F1CD91",
+              "#EC936B",
+              "#DDB3A4",
+              "#C6CA97",
+              "#F1C2CA",
+            ],
+          },
+        ],
+      },
+      {
+        name: "紅粉佳人",
+        colorStyles: [
+          {
+            root: "#3A0715",
+            text: "#fff",
+            nodes: [
+              "#E81C56",
+              "#CB184B",
+              "#A3143C",
+              "#911136",
+              "#990000",
+              "#C21E56",
+            ],
+            child: [
+              "#E81C56",
+              "#CB184B",
+              "#A3143C",
+              "#911136",
+              "#990000",
+              "#C21E56",
+            ],
+          },
+          {
+            root: "#C05D64",
+            text: "#fff",
+            nodes: [
+              "#D17075",
+              "#C98087",
+              "#C58B8F",
+              "#D7847F",
+              "#C99499",
+              "#E1A1A1",
+            ],
+            child: [
+              "#D17075",
+              "#C98087",
+              "#C58B8F",
+              "#D7847F",
+              "#C99499",
+              "#E1A1A1",
+            ],
+          },
+          {
+            root: "#C8657A",
+            text: "#fff",
+            nodes: [
+              "#B0737F",
+              "#CE8091",
+              "#A45F63",
+              "#D2848C",
+              "#AD6B71",
+              "#996566",
+            ],
+            child: [
+              "#B0737F",
+              "#CE8091",
+              "#A45F63",
+              "#D2848C",
+              "#AD6B71",
+              "#996566",
+            ],
+          },
+        ],
+      },
+      {
+        name: "復古狂潮",
+        colorStyles: [
+          {
+            root: "#0C1440",
+            text: "#fff",
+            nodes: [
+              "#D90467",
+              "#027373",
+              "#03A678",
+              "#F26A1B",
+              "#B81B83",
+              "#22B859",
+            ],
+            child: [
+              "#D90467",
+              "#027373",
+              "#03A678",
+              "#F26A1B",
+              "#B81B83",
+              "#22B859",
+            ],
+          },
+          {
+            root: "#260101",
+            text: "#fff",
+            nodes: [
+              "#A68A56",
+              "#8AB5BF",
+              "#384759",
+              "#F26D85",
+              "#A04A2D",
+              "#916A46",
+            ],
+            child: [
+              "#A68A56",
+              "#8AB5BF",
+              "#384759",
+              "#F26D85",
+              "#A04A2D",
+              "#916A46",
+            ],
+          },
+          {
+            root: "#BAB86C",
+            text: "#000000",
+            nodes: [
+              "#98CBCB",
+              "#EDB458",
+              "#D2B48C",
+              "#B0C4DE",
+              "#A9A9A9",
+              "#C0C0C0",
+            ],
+            child: [
+              "#98CBCB",
+              "#EDB458",
+              "#D2B48C",
+              "#B0C4DE",
+              "#A9A9A9",
+              "#C0C0C0",
+            ],
+          },
+        ],
+      },
+    ],
+    []
+  );
+  //所有顏色風格
+  const colorStyles = useMemo(
+    () => [
+      {
+        root: nodesColor,
+        text: "#FFFFFF",
+        nodes: [nodesColor],
+        child: [nodesColor],
+      },
+      ...themes[currentTheme].colorStyles,
+    ],
+    [nodesColor, themes, currentTheme]
+  );
+
+  const rootColor = colorStyles[currentColorStyle].root; //取得當前顏色風格的根節點顏色
+  const textColor = colorStyles[currentColorStyle].text; //取得當前顏色風格的文字顏色
+  //取得當前顏色風格相應的節點顏色，並按照順序提取使用
+  const colors = colorStyles[currentColorStyle].nodes;
+  const color = colors[colorIndex % colors.length];
+
   //定義根節點狀態
   const [rootNode, setRootNode] = useState({
     id: uuidv4(),
     name: "Central Topic",
-    bkColor: "#17493b",
-    pathColor: "#17493b",
-    outline: { color: "#17493b", width: "3px", style: "none" },
+    bkColor: rootColor,
+    pathColor: rootColor,
+    outline: { color: rootColor, width: "3px", style: "none" },
     font: {
       family: fontFamily,
       size: "24px",
       weight: "400",
-      color: "#FFFFFF",
+      color: textColor,
     },
     path: {
       width: pathStyle === "none" ? "0" : pathWidth,
@@ -64,43 +288,41 @@ export default function WorkArea() {
       name: "Main Topic",
       isNew: true, //標記為新創建的節點
       children: [],
-      bkColor: "#17493b",
-      pathColor: "#17493b",
-      outline: { color: "#17493b", width: "3px", style: "none" },
+      bkColor: color,
+      pathColor: color,
+      outline: { color: color, width: "3px", style: "none" },
       font: {
         family: fontFamily,
         size: "20px",
         weight: "400",
-        color: "#FFFFFF",
+        color: textColor,
       },
       path: {
         width: pathStyle === "none" ? "0" : pathWidth,
         style: pathStyle === "dashed" ? "8" : "0",
       },
     }),
-    [fontFamily, pathWidth, pathStyle]
+    [color, textColor, pathWidth, pathStyle, fontFamily]
   );
+
   const newChildNode = useMemo(
     () => ({
       id: uuidv4(),
       name: "Subtopic",
       isNew: true,
       children: [],
-      bkColor: "#17493b",
-      pathColor: "#17493b",
-      outline: { color: "#17493b", width: "3px", style: "none" },
+      outline: { width: "3px", style: "none" },
       font: {
         family: fontFamily,
         size: "16px",
         weight: "400",
-        color: "#FFFFFF",
       },
       path: {
         width: pathStyle === "none" ? "0" : pathWidth,
         style: pathStyle === "dashed" ? "8" : "0",
       },
     }),
-    [fontFamily, pathWidth, pathStyle]
+    [pathWidth, pathStyle, fontFamily]
   );
 
   const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
@@ -261,6 +483,7 @@ export default function WorkArea() {
   }, []);
 
   const addNode = () => {
+    setColorIndex((prev) => prev + 1);
     const newNodeInstance = {
       ...newNode,
       id: uuidv4(),
@@ -274,6 +497,7 @@ export default function WorkArea() {
   };
 
   const addSiblingNode = useCallback(() => {
+    setColorIndex((prev) => prev + 1);
     const newNodeInstance = {
       ...newNode,
       id: uuidv4(),
@@ -295,10 +519,24 @@ export default function WorkArea() {
 
   const addChildNode = useCallback(
     (parentId) => {
+      const parentNode = findNode(nodes, parentId);
+      let parentColorIndex = colorStyles[currentColorStyle].nodes.indexOf(
+        parentNode.bkColor
+      );
+      if (parentColorIndex === -1) {
+        parentColorIndex = colorStyles[currentColorStyle].child.indexOf(
+          parentNode.bkColor
+        );
+      }
+      const childColor = colorStyles[currentColorStyle].child[parentColorIndex];
       const newChildInstance = {
         ...newChildNode,
         id: uuidv4(),
         parent: parentId,
+        bkColor: childColor,
+        pathColor: childColor,
+        outline: { ...newChildNode.outline, color: childColor },
+        font: { ...newChildNode.font, color: textColor },
       };
 
       const addChildToParent = (nodes) =>
@@ -319,11 +557,30 @@ export default function WorkArea() {
       setNodes((prev) => addChildToParent(prev));
       setSelectedNodes([newChildInstance.id]);
     },
-    [setNodes, setSelectedNodes, newChildNode]
+    [
+      setNodes,
+      setSelectedNodes,
+      nodes,
+      textColor,
+      colorStyles,
+      currentColorStyle,
+      findNode,
+      newChildNode,
+    ]
   );
 
   const addSiblingChildNode = useCallback(
     (parentNode) => {
+      let parentColorIndex = colorStyles[currentColorStyle].nodes.indexOf(
+        parentNode.bkColor
+      );
+      if (parentColorIndex === -1) {
+        parentColorIndex = colorStyles[currentColorStyle].child.indexOf(
+          parentNode.bkColor
+        );
+      }
+      const childColor = colorStyles[currentColorStyle].child[parentColorIndex];
+
       const selectedNodeIndex = parentNode.children.findIndex(
         (child) => child.id === selectedNodes[0]
       );
@@ -331,6 +588,10 @@ export default function WorkArea() {
         ...newChildNode,
         id: uuidv4(),
         parent: parentNode.id,
+        bkColor: childColor,
+        pathColor: childColor,
+        outline: { ...newChildNode.outline, color: childColor },
+        font: { ...newChildNode.font, color: textColor },
       };
       const addSibling = (nodes) => {
         return nodes.map((node) => {
@@ -364,7 +625,16 @@ export default function WorkArea() {
         React.createRef()
       );
     },
-    [selectedNodes, setNodes, setSelectedNodes, nodeRefs, newChildNode]
+    [
+      selectedNodes,
+      setNodes,
+      setSelectedNodes,
+      nodeRefs,
+      textColor,
+      colorStyles,
+      currentColorStyle,
+      newChildNode,
+    ]
   );
 
   const delNode = useCallback(
@@ -500,6 +770,7 @@ export default function WorkArea() {
       setRelMode(true);
     }
   };
+
   const addRel = useCallback(
     (to) => {
       if (relMode && relFromNode) {
@@ -774,18 +1045,27 @@ export default function WorkArea() {
               nodes={nodes}
               setNodes={setNodes}
               selectedNodes={selectedNodes}
+              currentColorStyle={currentColorStyle}
+              setCurrentColorStyle={setCurrentColorStyle}
+              colorStyles={colorStyles}
               findNode={findNode}
+              setColorIndex={setColorIndex}
+              nodesColor={nodesColor}
+              setNodesColor={setNodesColor}
               setSelectedNodes={setSelectedNodes}
               nodeRefs={nodeRefs}
-              rels={rels}
-              setRels={setRels}
-              selectedRelId={selectedRelId}
-              fontFamily={fontFamily}
-              setFontFamily={setFontFamily}
+              themes={themes}
+              currentTheme={currentTheme}
+              setCurrentTheme={setCurrentTheme}
               pathWidth={pathWidth}
               setPathWidth={setPathWidth}
               pathStyle={pathStyle}
               setPathStyle={setPathStyle}
+              fontFamily={fontFamily}
+              setFontFamily={setFontFamily}
+              rels={rels}
+              setRels={setRels}
+              selectedRelId={selectedRelId}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
               <Button

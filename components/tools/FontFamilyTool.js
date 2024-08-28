@@ -7,7 +7,7 @@ import {
   ComboboxOptions,
 } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { updateSelectedNodes } from "./ToolBox";
+import { updateSelectedNodes, updateNodes } from "./ToolBox";
 import clsx from "clsx";
 
 export const getAvailableFonts = async () => {
@@ -101,7 +101,7 @@ export default function FontFamilyTool({
   useEffect(() => {
     if (isGlobal) {
       setFontFamily(rootNode.font.family || "Noto Sans TC");
-    } else if (selectedNodes.length > 0) {
+    } else if (selectedNodes.length === 1) {
       const selectedNode = findNode([rootNode, ...nodes], selectedNodes[0]);
 
       if (selectedNode) {

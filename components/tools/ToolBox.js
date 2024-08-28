@@ -14,6 +14,26 @@ import clsx from "clsx";
 import ShapeTool from "../tools/ShapeTool";
 import TextTool from "../tools/TextTool";
 import PathTool from "../tools/PathTool";
+import ColorStyleTool from "../tools/ColorStyleTool";
+
+export const updateNodes = (nodes, updateFn) => {
+  return nodes.map((node) => {
+    const updatedNode = {
+      ...node,
+      ...updateFn(node),
+      children: node.children ? updateNodes(node.children, updateFn) : [],
+    };
+
+    if (node.summary) {
+      updatedNode.summary = {
+        ...node.summary,
+        ...updateFn(node.summary),
+      };
+    }
+
+    return updatedNode;
+  });
+};
 
 export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
   return nodes.map((node) => {
@@ -47,25 +67,62 @@ export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
     return updatedNode;
   });
 };
+
+export const updateNodesColor = (
+  nodes,
+  colorStyle,
+  parentColorIndex = null
+) => {
+  return nodes.map((node, index) => {
+    const nodeColorIndex =
+      parentColorIndex !== null
+        ? parentColorIndex
+        : index % colorStyle.nodes.length;
+    const newBkColor =
+      parentColorIndex === null
+        ? colorStyle.nodes[nodeColorIndex]
+        : colorStyle.child[nodeColorIndex];
+    return {
+      ...node,
+      bkColor: newBkColor,
+      pathColor: newBkColor,
+      outline: { ...node.outline, color: newBkColor },
+      font: { ...node.font, color: colorStyle.text },
+      children: node.children
+        ? updateNodesColor(node.children, colorStyle, nodeColorIndex)
+        : [],
+    };
+  });
+};
 export default function ToolBox({
   rootNode,
   setRootNode,
   nodes,
   setNodes,
   selectedNodes,
+  currentColorStyle,
+  setCurrentColorStyle,
+  colorStyles,
   findNode,
-  rels,
-  setRels,
-  selectedRelId,
-  fontFamily,
-  setFontFamily,
+  setColorIndex,
+  nodesColor,
+  setNodesColor,
   pathWidth,
   setPathWidth,
   pathStyle,
   setPathStyle,
+  fontFamily,
+  setFontFamily,
+  rels,
+  setRels,
+  selectedRelId,
 }) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [fontSize, setFontSize] = useState("16");
+  const [colorStyleEnabled, setColorStyleEnabled] = useState(true);
+  const colorStyleopts = colorStyles.slice(1).map((style) => {
+    return { colors: [...style.nodes, style.root] };
+  });
 
   useEffect(() => {
     if (selectedNodes.length === 0 && !selectedRelId) {
@@ -106,7 +163,12 @@ export default function ToolBox({
               nodes={nodes}
               setNodes={setNodes}
               selectedNodes={selectedNodes}
+              setCurrentColorStyle={setCurrentColorStyle}
+              currentColorStyle={currentColorStyle}
+              colorStyles={colorStyles}
               findNode={findNode}
+              colorStyleEnabled={colorStyleEnabled}
+              colorStyleopts={colorStyleopts}
             />
             <Disclosure as="div" className="p-4 border-t" defaultOpen={true}>
               <DisclosureButton className="group flex w-full items-center">
@@ -149,6 +211,27 @@ export default function ToolBox({
                   pathStyle={pathStyle}
                   setPathStyle={setPathStyle}
                   isGlobal={false}
+                />
+                <ColorStyleTool
+                  rootNode={rootNode}
+                  setRootNode={setRootNode}
+                  nodes={nodes}
+                  setNodes={setNodes}
+                  selectedNodes={selectedNodes}
+                  currentColorStyle={currentColorStyle}
+                  setCurrentColorStyle={setCurrentColorStyle}
+                  colorStyles={colorStyles}
+                  setColorIndex={setColorIndex}
+                  nodesColor={nodesColor}
+                  setNodesColor={setNodesColor}
+                  findNode={findNode}
+                  colorStyleEnabled={colorStyleEnabled}
+                  setColorStyleEnabled={setColorStyleEnabled}
+                  colorStyleopts={colorStyleopts}
+                  isGlobal={false}
+                  rels={rels}
+                  setRels={setRels}
+                  selectedRelId={selectedRelId}
                 />
               </DisclosurePanel>
             </Disclosure>
