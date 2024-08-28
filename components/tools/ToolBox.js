@@ -13,6 +13,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import ShapeTool from "../tools/ShapeTool";
 import TextTool from "../tools/TextTool";
+import PathTool from "../tools/PathTool";
 
 export const updateSelectedNodes = (nodes, selectedNodes, updateFn) => {
   return nodes.map((node) => {
@@ -58,6 +59,10 @@ export default function ToolBox({
   selectedRelId,
   fontFamily,
   setFontFamily,
+  pathWidth,
+  setPathWidth,
+  pathStyle,
+  setPathStyle,
 }) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [fontSize, setFontSize] = useState("16");
@@ -132,7 +137,19 @@ export default function ToolBox({
                 <span className=" font-medium">分支</span>
               </DisclosureButton>
               <DisclosurePanel className="mt-3">
-                <div>分支</div>
+                <PathTool
+                  rootNode={rootNode}
+                  setRootNode={setRootNode}
+                  nodes={nodes}
+                  setNodes={setNodes}
+                  selectedNodes={selectedNodes}
+                  findNode={findNode}
+                  pathWidth={pathWidth}
+                  setPathWidth={setPathWidth}
+                  pathStyle={pathStyle}
+                  setPathStyle={setPathStyle}
+                  isGlobal={false}
+                />
               </DisclosurePanel>
             </Disclosure>
           </TabPanel>

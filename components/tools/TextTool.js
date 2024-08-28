@@ -34,7 +34,6 @@ export default function TextTool({
   setFontFamily,
 }) {
   const [sizeQuery, setSizeQuery] = useState("");
-  // const [fontSize, setFontSize] = useState("16");
   const [fontWeight, setFontWeight] = useState("400");
   const [isItalic, setIsItalic] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);

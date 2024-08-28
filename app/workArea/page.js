@@ -32,6 +32,8 @@ export default function WorkArea() {
   const [selectedRelId, setSelectedRelId] = useState(null);
 
   const [fontFamily, setFontFamily] = useState("Noto Sans TC");
+  const [pathWidth, setPathWidth] = useState("3");
+  const [pathStyle, setPathStyle] = useState("solid");
 
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
@@ -51,8 +53,8 @@ export default function WorkArea() {
       color: "#FFFFFF",
     },
     path: {
-      width: "3",
-      style: "solid",
+      width: pathStyle === "none" ? "0" : pathWidth,
+      style: pathStyle === "dashed" ? "8" : "0",
     },
   });
   const [nodes, setNodes] = useState([]); //定義節點們的狀態，用来存儲所有節點，初始為空陣列
@@ -72,11 +74,11 @@ export default function WorkArea() {
         color: "#FFFFFF",
       },
       path: {
-        width: "3",
-        style: "solid",
+        width: pathStyle === "none" ? "0" : pathWidth,
+        style: pathStyle === "dashed" ? "8" : "0",
       },
     }),
-    [fontFamily]
+    [fontFamily, pathWidth, pathStyle]
   );
   const newChildNode = useMemo(
     () => ({
@@ -94,11 +96,11 @@ export default function WorkArea() {
         color: "#FFFFFF",
       },
       path: {
-        width: "3",
-        style: "solid",
+        width: pathStyle === "none" ? "0" : pathWidth,
+        style: pathStyle === "dashed" ? "8" : "0",
       },
     }),
-    [fontFamily]
+    [fontFamily, pathWidth, pathStyle]
   );
 
   const [selectedNodes, setSelectedNodes] = useState([]); //定義選中節點們的狀態，初始為空陣列，用來存儲所有被選中的節點id
@@ -780,6 +782,10 @@ export default function WorkArea() {
               selectedRelId={selectedRelId}
               fontFamily={fontFamily}
               setFontFamily={setFontFamily}
+              pathWidth={pathWidth}
+              setPathWidth={setPathWidth}
+              pathStyle={pathStyle}
+              setPathStyle={setPathStyle}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
               <Button
