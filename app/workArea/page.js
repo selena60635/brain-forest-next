@@ -8,10 +8,13 @@ import React, {
   useEffect,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Button } from "@headlessui/react";
+import { PiToolbox } from "react-icons/pi";
 import MindMap from "../../components/MindMap";
 import BtnsGroupCol from "../../components/BtnsGroupCol";
 import BtnsGroupRow from "../../components/BtnsGroupRow";
 import Shortcuts from "../../components/Shortcuts";
+import ToolBox from "../../components/tools/ToolBox";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -52,6 +55,7 @@ export default function WorkArea() {
   const [isPanMode, setIsPanMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isToolBoxOpen, setIsToolBoxOpen] = useState(false);
 
   const [relMode, setRelMode] = useState(false);
   const [rels, setRels] = useState([]);
@@ -656,7 +660,11 @@ export default function WorkArea() {
         className={`flex w-full ${isFullScreen && "h-screen"}`}
         ref={pageRef}
       >
-        <div className={`transition-all duration-300 ease-in-out w-screen `}>
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            isToolBoxOpen ? "w-6/12 sm:w-10/12" : "w-screen"
+          }`}
+        >
           <div
             className={`canvas-wrap ${
               isFullScreen ? "h-screen" : "h-[calc(100vh-65px)]"
@@ -686,7 +694,9 @@ export default function WorkArea() {
                 <Shortcuts />
               </div>
               <div
-                className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out right-10 `}
+                className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out ${
+                  isToolBoxOpen ? "right-[356px]" : "right-10"
+                }`}
               >
                 <BtnsGroupRow
                   togglePanMode={togglePanMode}
@@ -753,6 +763,37 @@ export default function WorkArea() {
                 handleZoom={handleZoom}
                 zoomLevel={zoomLevel}
               />
+            </div>
+          </div>
+        </div>
+        <div
+          className={`bg-white absolute right-0 w-6/12 sm:w-2/12 transition-all duration-300 ease-in-out ${
+            isToolBoxOpen ? "translate-x-0" : "translate-x-full "
+          }`}
+        >
+          <div
+            className={`${
+              isFullScreen ? "h-screen" : "h-[calc(100vh-65px)]"
+            } border-l shadow-lg tool-box`}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <ToolBox
+              selectedNodes={selectedNodes}
+              selectedRelId={selectedRelId}
+            />
+            <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
+              <Button
+                className="btn aspect-square"
+                onClick={() => setIsToolBoxOpen(!isToolBoxOpen)}
+              >
+                <PiToolbox
+                  size={24}
+                  strokeWidth="3"
+                  className={`${isToolBoxOpen ? "text-primary" : ""}`}
+                />
+              </Button>
             </div>
           </div>
         </div>
