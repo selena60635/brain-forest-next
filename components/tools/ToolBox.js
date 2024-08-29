@@ -303,6 +303,21 @@ export default function ToolBox({
                 selectedRelId={selectedRelId}
               />
             </div>
+            <div className="p-4 border-t">
+              <PathTool
+                rootNode={rootNode}
+                setRootNode={setRootNode}
+                nodes={nodes}
+                setNodes={setNodes}
+                selectedNodes={selectedNodes}
+                findNode={findNode}
+                pathWidth={pathWidth}
+                setPathWidth={setPathWidth}
+                pathStyle={pathStyle}
+                setPathStyle={setPathStyle}
+                isGlobal={true}
+              />
+            </div>
           </TabPanel>
           <TabPanel>
             <div>tab3</div>

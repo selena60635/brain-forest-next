@@ -135,28 +135,37 @@ export default function PathTool({
       );
     }
   };
+
   useEffect(() => {
     if (isGlobal) {
-      setPathWidth(rootNode.path.width || "3");
-      setPathStyle(
+      if (rootNode.path.width !== pathWidth) {
+        setPathWidth(rootNode.path.width || "3");
+      }
+      const newStyle =
         rootNode.path.width === "0"
           ? "none"
           : rootNode.path.style === "0"
           ? "solid"
-          : "dashed"
-      );
+          : "dashed";
+      if (pathStyle !== newStyle) {
+        setPathStyle(newStyle);
+      }
     } else if (selectedNodes.length === 1) {
       const selectedNode = findNode([rootNode, ...nodes], selectedNodes[0]);
 
       if (selectedNode) {
-        setPathWidth(selectedNode.path.width || "3");
-        setPathStyle(
+        if (selectedNode.path.width !== pathWidth) {
+          setPathWidth(selectedNode.path.width || "3");
+        }
+        const newStyle =
           selectedNode.path.width === "0"
             ? "none"
             : selectedNode.path.style === "0"
             ? "solid"
-            : "dashed"
-        );
+            : "dashed";
+        if (pathStyle !== newStyle) {
+          setPathStyle(newStyle);
+        }
       }
     }
   }, [
@@ -165,6 +174,8 @@ export default function PathTool({
     nodes,
     findNode,
     isGlobal,
+    pathWidth,
+    pathStyle,
     setPathStyle,
     setPathWidth,
   ]);
