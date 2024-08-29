@@ -17,6 +17,7 @@ import PathTool from "../tools/PathTool";
 import ColorStyleTool from "../tools/ColorStyleTool";
 import ThemeTool from "../tools/ThemeTool";
 import CanvasTool from "../tools/CanvasTool";
+import FontFamilyTool from "../tools/FontFamilyTool";
 
 export const updateNodes = (nodes, updateFn) => {
   return nodes.map((node) => {
@@ -283,6 +284,23 @@ export default function ToolBox({
                 setCanvasBgColor={setCanvasBgColor}
                 canvasBgStyle={canvasBgStyle}
                 setCanvasBgStyle={setCanvasBgStyle}
+              />
+            </div>
+            <div className="p-4 border-t">
+              <FontFamilyTool
+                rootNode={rootNode}
+                setRootNode={setRootNode}
+                nodes={nodes}
+                setNodes={setNodes}
+                selectedNodes={selectedNodes}
+                fontFamily={fontFamily}
+                setFontFamily={setFontFamily}
+                findNode={findNode}
+                isGlobal={true}
+                fontSize={fontSize}
+                rels={rels}
+                setRels={setRels}
+                selectedRelId={selectedRelId}
               />
             </div>
           </TabPanel>

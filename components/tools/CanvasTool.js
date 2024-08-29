@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { SketchPicker } from "react-color";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { updateNodes, updateSelectedNodes, updateNodesColor } from "./ToolBox";
 
 export default function CanvasTool({
   canvasBgColor,

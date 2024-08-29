@@ -98,19 +98,44 @@ export default function FontFamilyTool({
       );
     }
   };
+  // useEffect(() => {
+  //   if (isGlobal) {
+  //     setFontFamily(rootNode.font.family || "Noto Sans TC");
+  //   } else if (selectedNodes.length === 1) {
+  //     const selectedNode = findNode([rootNode, ...nodes], selectedNodes[0]);
+
+  //     if (selectedNode) {
+  //       setFontFamily(selectedNode.font.family || "Noto Sans TC");
+  //     }
+  //   } else if (selectedRelId) {
+  //     const selectedRel = rels.find((rel) => rel.id === selectedRelId);
+  //     if (selectedRel) {
+  //       setFontFamily(selectedRel.font?.family || "Noto Sans TC");
+  //     }
+  //   }
+  // }, [
+  //   selectedNodes,
+  //   rootNode,
+  //   nodes,
+  //   findNode,
+  //   isGlobal,
+  //   setFontFamily,
+  //   rels,
+  //   selectedRelId,
+  // ]);
   useEffect(() => {
-    if (isGlobal) {
+    if (isGlobal && rootNode.font.family !== fontFamily) {
       setFontFamily(rootNode.font.family || "Noto Sans TC");
     } else if (selectedNodes.length === 1) {
       const selectedNode = findNode([rootNode, ...nodes], selectedNodes[0]);
 
-      if (selectedNode) {
+      if (selectedNode.font.family !== fontFamily) {
         setFontFamily(selectedNode.font.family || "Noto Sans TC");
       }
     } else if (selectedRelId) {
       const selectedRel = rels.find((rel) => rel.id === selectedRelId);
-      if (selectedRel) {
-        setFontFamily(selectedRel.font?.family || "Noto Sans TC");
+      if (selectedRel.font.family !== fontFamily) {
+        setFontFamily(selectedRel.font.family || "Noto Sans TC");
       }
     }
   }, [
@@ -119,6 +144,7 @@ export default function FontFamilyTool({
     nodes,
     findNode,
     isGlobal,
+    fontFamily,
     setFontFamily,
     rels,
     selectedRelId,
