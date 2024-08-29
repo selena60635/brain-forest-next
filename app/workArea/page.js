@@ -38,6 +38,8 @@ export default function WorkArea() {
   const [currentColorStyle, setCurrentColorStyle] = useState(1); //目前顏色風格索引
   const [colorIndex, setColorIndex] = useState(0); //目前節點顏色索引
   const [nodesColor, setNodesColor] = useState("#17493b"); //純色模式目前顏色
+  const [canvasBgColor, setCanvasBgColor] = useState("#fff");
+  const [canvasBgStyle, setCanvasBgStyle] = useState("none");
 
   const [selectBox, setSelectBox] = useState(null); //存儲選擇框位置
   const selectStart = useRef({ x: 0, y: 0 }); //用來引用並存儲鼠標起始位置，始終不變
@@ -980,10 +982,9 @@ export default function WorkArea() {
               />
             )}
             <div
-              className={`canvas bg-white`}
+              className={`canvas  ${canvasBgStyle}`}
               style={{
-                "--zoomLevel": zoomLevel,
-
+                backgroundColor: canvasBgColor,
                 transform: `scale(${zoomLevel})`,
               }}
             >
@@ -1066,6 +1067,10 @@ export default function WorkArea() {
               rels={rels}
               setRels={setRels}
               selectedRelId={selectedRelId}
+              canvasBgColor={canvasBgColor}
+              setCanvasBgColor={setCanvasBgColor}
+              canvasBgStyle={canvasBgStyle}
+              setCanvasBgStyle={setCanvasBgStyle}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
               <Button

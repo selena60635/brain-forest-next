@@ -16,6 +16,7 @@ import TextTool from "../tools/TextTool";
 import PathTool from "../tools/PathTool";
 import ColorStyleTool from "../tools/ColorStyleTool";
 import ThemeTool from "../tools/ThemeTool";
+import CanvasTool from "../tools/CanvasTool";
 
 export const updateNodes = (nodes, updateFn) => {
   return nodes.map((node) => {
@@ -120,6 +121,10 @@ export default function ToolBox({
   rels,
   setRels,
   selectedRelId,
+  canvasBgColor,
+  setCanvasBgColor,
+  canvasBgStyle,
+  setCanvasBgStyle,
 }) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [fontSize, setFontSize] = useState("16");
@@ -270,6 +275,14 @@ export default function ToolBox({
                 rels={rels}
                 setRels={setRels}
                 selectedRelId={selectedRelId}
+              />
+            </div>
+            <div className="p-4 border-t">
+              <CanvasTool
+                canvasBgColor={canvasBgColor}
+                setCanvasBgColor={setCanvasBgColor}
+                canvasBgStyle={canvasBgStyle}
+                setCanvasBgStyle={setCanvasBgStyle}
               />
             </div>
           </TabPanel>
