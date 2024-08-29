@@ -15,6 +15,7 @@ import ShapeTool from "../tools/ShapeTool";
 import TextTool from "../tools/TextTool";
 import PathTool from "../tools/PathTool";
 import ColorStyleTool from "../tools/ColorStyleTool";
+import ThemeTool from "../tools/ThemeTool";
 
 export const updateNodes = (nodes, updateFn) => {
   return nodes.map((node) => {
@@ -107,6 +108,9 @@ export default function ToolBox({
   setColorIndex,
   nodesColor,
   setNodesColor,
+  themes,
+  currentTheme,
+  setCurrentTheme,
   pathWidth,
   setPathWidth,
   pathStyle,
@@ -237,7 +241,37 @@ export default function ToolBox({
             </Disclosure>
           </TabPanel>
           <TabPanel>
-            <div>tab2</div>
+            <ThemeTool
+              setRootNode={setRootNode}
+              setNodes={setNodes}
+              setCurrentColorStyle={setCurrentColorStyle}
+              themes={themes}
+              currentTheme={currentTheme}
+              setCurrentTheme={setCurrentTheme}
+            />
+            <div className="px-4 pb-4">
+              <ColorStyleTool
+                rootNode={rootNode}
+                setRootNode={setRootNode}
+                nodes={nodes}
+                setNodes={setNodes}
+                selectedNodes={selectedNodes}
+                currentColorStyle={currentColorStyle}
+                setCurrentColorStyle={setCurrentColorStyle}
+                colorStyles={colorStyles}
+                setColorIndex={setColorIndex}
+                nodesColor={nodesColor}
+                setNodesColor={setNodesColor}
+                findNode={findNode}
+                colorStyleEnabled={colorStyleEnabled}
+                setColorStyleEnabled={setColorStyleEnabled}
+                colorStyleopts={colorStyleopts}
+                isGlobal={true}
+                rels={rels}
+                setRels={setRels}
+                selectedRelId={selectedRelId}
+              />
+            </div>
           </TabPanel>
           <TabPanel>
             <div>tab3</div>
