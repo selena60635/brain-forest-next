@@ -16,7 +16,7 @@ import BtnsGroupCol from "../../components/BtnsGroupCol";
 import BtnsGroupRow from "../../components/BtnsGroupRow";
 import Shortcuts from "../../components/Shortcuts";
 import ToolBox from "../../components/tools/ToolBox";
-import "../../utils/setupConsole";
+import "../../lib/setupConsole";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

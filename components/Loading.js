@@ -1,9 +1,11 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import { hourglass } from "ldrs";
 
 export default function Loading() {
-  hourglass.register("l-hourglass");
-
+  useEffect(() => {
+    hourglass.register("l-hourglass");
+  }, []);
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-light z-50">
       <l-hourglass

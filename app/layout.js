@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { AuthContext } from "../components/AuthContext";
+import Header from "../components/Header";
 import "./globals.css";
 
 export const metadata = {
@@ -15,55 +16,13 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  const user = false;
   return (
     <html lang="en">
       <body>
-        <header className="bg-light border-b border-secondary text-secondary">
-          <nav className="flex justify-between items-center container mx-auto px-4">
-            <div className="flex space-x-3 items-center my-4">
-              <Link href="/" className="text-2xl font-bold " to="/">
-                <h1>Brain Forest</h1>
-              </Link>
-            </div>
-            <ul className="flex items-center space-x-8">
-              <li>
-                <Link
-                  href="/folder"
-                  className="px-3 py-2 font-medium hover:text-primary"
-                >
-                  Folder
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/workArea"
-                  className="px-3 py-2 font-medium  hover:text-primary"
-                >
-                  Workarea
-                </Link>
-              </li>
-              <li>
-                {user ? (
-                  <button
-                    // onClick={handleSignOut}
-                    className="rounded-md px-3 py-2 font-medium text-white bg-secondary hover:bg-primary"
-                  >
-                    Sign Out
-                  </button>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="rounded-md px-3 py-2 font-medium text-white bg-secondary hover:bg-primary"
-                  >
-                    Sign In
-                  </Link>
-                )}
-              </li>
-            </ul>
-          </nav>
-        </header>
-        <main>{children}</main>
+        <AuthContext>
+          <Header />
+          <main>{children}</main>
+        </AuthContext>
       </body>
     </html>
   );
