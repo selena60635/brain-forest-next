@@ -2,6 +2,31 @@
 import React, { useContext } from "react";
 import { Context } from "./AuthContext";
 import Link from "next/link";
+import SweetAlert from "./SweetAlert";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebaseConfig";
+
+export async function handleSignOut() {
+  const logoutAlert = await SweetAlert({
+    type: "alert",
+    title: "Confirm sign out?",
+    icon: "warning",
+    confirmButtonText: "Yes, sign out",
+    showCancelButton: true,
+    cancelButtonText: "No, cancel",
+  });
+  if (logoutAlert.isConfirmed) {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      SweetAlert({
+        type: "toast",
+        title: "Signed out failed!",
+        icon: "error",
+      });
+    }
+  }
+}
 
 export default function Header() {
   const { user } = useContext(Context);
@@ -34,7 +59,7 @@ export default function Header() {
           <li className="">
             {user ? (
               <button
-                // onClick={handleSignOut}
+                onClick={handleSignOut}
                 className="rounded-md px-3 py-2 font-medium text-white bg-secondary hover:bg-primary"
               >
                 Sign Out
