@@ -1,19 +1,9 @@
-"use client";
-import React, { useEffect } from "react";
-import { hourglass } from "ldrs";
+import { PacmanLoader } from "react-spinners";
 
 export default function Loading() {
-  useEffect(() => {
-    hourglass.register("l-hourglass");
-  }, []);
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-light z-50">
-      <l-hourglass
-        size="150"
-        bg-opacity="0.1"
-        speed="1.75"
-        color="#3AB795"
-      ></l-hourglass>
+      <PacmanLoader color="#3AB795" size={50} />
     </div>
   );
 }
