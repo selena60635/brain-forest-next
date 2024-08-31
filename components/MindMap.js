@@ -41,12 +41,12 @@ export default function MindMap({
   relRefs,
   btnsRef,
   isPanMode,
-
   handleLinkMode,
   scrollToCenter,
   toggleFullScreen,
   handleZoom,
   zoomLevel,
+  handleSaveMindMap,
 }) {
   const [isAnyEditing, setIsAnyEditing] = useState(false);
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
@@ -239,6 +239,11 @@ export default function MindMap({
         }
       }
 
+      if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSaveMindMap();
+      }
       //pan mode
       if (e.key === " ") {
         togglePanMode();
@@ -300,6 +305,7 @@ export default function MindMap({
       toggleFullScreen,
       handleZoom,
       isAnyEditing,
+      handleSaveMindMap,
     ]
   );
 

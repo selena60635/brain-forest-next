@@ -7,7 +7,17 @@ import React, {
   useLayoutEffect,
   useEffect,
 } from "react";
+import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import {
+  doc,
+  setDoc,
+  collection,
+  Timestamp,
+  addDoc,
+  getDoc,
+} from "firebase/firestore";
+import { db, auth } from "../../lib/firebaseConfig";
 import { Button } from "@headlessui/react";
 import { PiToolbox } from "react-icons/pi";
 import { updateSelectedNodes } from "../../components/tools/ToolBox";
@@ -16,11 +26,15 @@ import BtnsGroupCol from "../../components/BtnsGroupCol";
 import BtnsGroupRow from "../../components/BtnsGroupRow";
 import Shortcuts from "../../components/Shortcuts";
 import ToolBox from "../../components/tools/ToolBox";
+import SweetAlert from "../../components/SweetAlert";
+import Loading from "../../components/Loading";
 import "../../lib/setupConsole";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export default function WorkArea() {
+export default function WorkArea({ id }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true); //是否開啟loading page
   const [isPanMode, setIsPanMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -353,6 +367,128 @@ export default function WorkArea() {
       return { left: 0, top: 0, right: 0, bottom: 0 };
     },
     [canvasRef]
+  );
+
+  //儲存心智圖組件並重導向
+  const saveMindMap = async (id = null) => {
+    try {
+      const mindMapData = {
+        currentTheme,
+        currentColorStyle,
+        canvasBg: { canvasBgStyle, canvasBgColor },
+        path: { pathWidth, pathStyle },
+        fontFamily,
+        rels,
+        rootNode,
+        nodes,
+        lastSavedAt: Timestamp.now(),
+      };
+      const userId = auth.currentUser.uid;
+      let docRef;
+      if (id) {
+        docRef = doc(db, "users", userId, "mindMaps", id);
+        await setDoc(docRef, mindMapData);
+        SweetAlert({
+          type: "toast",
+          title: "Save successfully!",
+          icon: "success",
+        });
+      } else {
+        docRef = await addDoc(
+          collection(db, "users", userId, "mindMaps"),
+          mindMapData
+        );
+        SweetAlert({
+          type: "toast",
+          title: "Save new file successfully!",
+          icon: "success",
+        });
+        router.push(`/workArea/${docRef.id}`);
+      }
+    } catch (err) {
+      SweetAlert({
+        type: "toast",
+        title: `Save ${id ? "" : "new"} file failed!`,
+        icon: "error",
+      });
+    }
+  };
+
+  const handleSaveMindMap = async () => {
+    await saveMindMap(id);
+  };
+
+  //重置心智圖組件為初始狀態
+  const resetMindMap = useCallback(async () => {
+    // setRootNode({
+    //   id: uuidv4(),
+    //   name: "Central Topic",
+    //   bkColor: "#000229",
+    //   pathColor: "#000229",
+    //   outline: { color: "#000229", width: "3px", style: "none" },
+    //   font: {
+    //     family: "Noto Sans TC",
+    //     size: "24px",
+    //     weight: "400",
+    //     color: "#FFFFFF",
+    //   },
+    //   path: {
+    //     width: "3",
+    //     style: "0",
+    //   },
+    // });
+    // setNodes([]);
+    // nodeRefs.current = [];
+    await delay(1000); // loading頁面至少顯示1秒
+    setLoading(false);
+  }, []);
+
+  //獲取檔案並設定心智圖組件狀態
+  const fetchMindMap = useCallback(
+    async (mindMapId) => {
+      try {
+        const userId = auth.currentUser.uid;
+        const docRef = doc(db, "users", userId, "mindMaps", mindMapId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const mindMapData = docSnap.data();
+          // await document.fonts.load(
+          //   `${mindMapData.rootNode.font.size} ${mindMapData.fontFamily}`
+          // );
+
+          setRootNode(mindMapData.rootNode);
+          setNodes(mindMapData.nodes);
+          setCurrentColorStyle((prev) => mindMapData.currentColorStyle || prev);
+          setCurrentTheme((prev) => mindMapData.currentTheme || prev);
+          setCanvasBgColor(
+            (prev) => mindMapData.canvasBg?.canvasBgColor || prev
+          );
+          setCanvasBgStyle(
+            (prev) => mindMapData.canvasBg?.canvasBgStyle || prev
+          );
+          setPathWidth((prev) => mindMapData.path?.pathWidth || prev);
+          setPathStyle((prev) => mindMapData.path?.pathStyle || prev);
+
+          setFontFamily((prev) => mindMapData.fontFamily || prev);
+          setRels((prev) => mindMapData.rels || prev);
+          nodeRefs.current = new Array(mindMapData.nodes.length)
+            .fill(null)
+            .map(() => React.createRef());
+        }
+      } catch (err) {
+        SweetAlert({
+          type: "toast",
+          title: "Failed to load file!",
+          icon: "error",
+        });
+        console.log(err);
+      } finally {
+        await delay(1000); // loading頁面至少顯示1秒
+        setLoading(false);
+      }
+    },
+    [setCurrentColorStyle, setRootNode, setNodes]
   );
 
   //繪製生成選取框
@@ -867,6 +1003,22 @@ export default function WorkArea() {
       setIsFullScreen(false);
     }
   };
+
+  //設定zoom in/out/reset
+  const handleZoom = (type) => {
+    setZoomLevel((prev) => {
+      if (type === "in") {
+        return Math.min(prev * 1.25, 3); //最大300%
+      } else if (type === "out") {
+        return Math.max(prev * 0.8, 0.4); //最小40%
+      } else if (type === "reset") {
+        return 1;
+      } else {
+        return prev;
+      }
+    });
+  };
+
   //監聽全螢幕事件(F12、Esc)，使isFullScreen能夠正確設置
   useEffect(() => {
     const toggleFullScreenChange = () => {
@@ -895,25 +1047,21 @@ export default function WorkArea() {
     return () => {
       window.removeEventListener("keydown", handleTab);
     };
-  }, [scrollToCenter, rootRef]);
+  }, [scrollToCenter, rootRef, loading]);
 
-  //設定zoom in/out/reset
-  const handleZoom = (type) => {
-    setZoomLevel((prev) => {
-      if (type === "in") {
-        return Math.min(prev * 1.25, 3); //最大300%
-      } else if (type === "out") {
-        return Math.max(prev * 0.8, 0.4); //最小40%
-      } else if (type === "reset") {
-        return 1;
-      } else {
-        return prev;
-      }
-    });
-  };
+  //若id改變，重新載入相應的心智圖檔案
+  useEffect(() => {
+    setLoading(true);
+    if (id) {
+      fetchMindMap(id);
+    } else {
+      resetMindMap();
+    }
+  }, [id, fetchMindMap, resetMindMap]);
 
   return (
     <>
+      {loading && <Loading />}
       {relMode && (
         <p className="absolute z-10">Please click the target node.</p>
       )}
@@ -949,6 +1097,7 @@ export default function WorkArea() {
                   addSummary={addSummary}
                   handleLinkMode={handleLinkMode}
                   selectedRelId={selectedRelId}
+                  handleSaveMindMap={handleSaveMindMap}
                 />
               </div>
 
@@ -1023,6 +1172,7 @@ export default function WorkArea() {
                 toggleFullScreen={toggleFullScreen}
                 handleZoom={handleZoom}
                 zoomLevel={zoomLevel}
+                handleSaveMindMap={handleSaveMindMap}
               />
             </div>
           </div>
