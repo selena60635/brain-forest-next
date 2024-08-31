@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import {
   collection,
   getDocs,
@@ -15,7 +15,7 @@ import Loading from "../../components/Loading";
 import { v4 as uuidv4 } from "uuid";
 import { delay } from "../workArea/page";
 import SweetAlert from "../../components/SweetAlert";
-
+import { Context } from "../../components/AuthContext";
 import { MdChevronRight, MdAdd, MdChevronLeft } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
 
@@ -41,7 +41,7 @@ const formatDateTime = (timestamp) => {
 };
 
 export default function Folder() {
-  // const { user } = useContext(Context);
+  const { user } = useContext(Context);
   const [mindMaps, setMindMaps] = useState([]); //存儲使用者所有心智圖檔案
   const [loading, setLoading] = useState(true); //是否開啟loading page
   const router = useRouter();
@@ -160,6 +160,32 @@ export default function Folder() {
     }
   };
 
+  //儲存localStorage中的試用檔案
+  const saveLocalFile = useCallback(
+    async (file) => {
+      try {
+        const userId = auth.currentUser.uid;
+        const docRef = await addDoc(
+          collection(db, "users", userId, "mindMaps"),
+          file
+        );
+        SweetAlert({
+          type: "toast",
+          title: "Save new file successfully!",
+          icon: "success",
+        });
+        router.push(`/workArea/${docRef.id}`);
+      } catch (err) {
+        SweetAlert({
+          type: "toast",
+          title: "Save new file failed!",
+          icon: "error",
+        });
+      }
+    },
+    [router]
+  );
+
   //初始載入時取得firstore中，該使用者的mindMaps
   useEffect(() => {
     const fetchMindMaps = async () => {
@@ -196,6 +222,19 @@ export default function Folder() {
 
     fetchMindMaps();
   }, []);
+
+  //檢查localStorage是否有暫存的檔案
+  useEffect(() => {
+    if (user) {
+      //若使用者已登入，取得暫存檔案並儲存
+      const savedState = localStorage.getItem("mindMapTest");
+      if (savedState) {
+        const file = JSON.parse(savedState);
+        saveLocalFile(file);
+        localStorage.removeItem("mindMapTest");
+      }
+    }
+  }, [user, saveLocalFile]);
 
   return (
     <section

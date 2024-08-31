@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useLayoutEffect,
   useEffect,
+  useContext,
 } from "react";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
@@ -29,10 +30,12 @@ import ToolBox from "../../components/tools/ToolBox";
 import SweetAlert from "../../components/SweetAlert";
 import Loading from "../../components/Loading";
 import "../../lib/setupConsole";
+import { Context } from "../../components/AuthContext";
 
 export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function WorkArea({ id }) {
+  const { user } = useContext(Context);
   const router = useRouter();
   const [loading, setLoading] = useState(true); //是否開啟loading page
   const [isSaved, setIsSaved] = useState(true); //紀錄檔案是否還未儲存
@@ -416,10 +419,39 @@ export default function WorkArea({ id }) {
   };
 
   const handleSaveMindMap = async () => {
-    await saveMindMap(id);
-    setIsSaved(true);
-  };
+    if (!user) {
+      //若是訪客，將試用的檔案暫存到localStorage
+      const state = {
+        currentTheme,
+        currentColorStyle,
+        canvasBg: { canvasBgStyle, canvasBgColor },
+        path: { pathWidth, pathStyle },
+        fontFamily,
+        rels,
+        rootNode,
+        nodes,
+        lastSavedAt: Timestamp.now(),
+      };
+      localStorage.setItem("mindMapTest", JSON.stringify(state));
 
+      const needLoginAlert = await SweetAlert({
+        type: "alert",
+        title: "Please sign in.",
+        icon: "warning",
+        text: "You need to sign in to save files. Would you like to go to the login page now?",
+        confirmButtonText: "Yes",
+        showCancelButton: true,
+        cancelButtonText: "No",
+      });
+
+      if (needLoginAlert.isConfirmed) {
+        router.push(`/login`);
+      }
+    } else {
+      await saveMindMap(id);
+      setIsSaved(true);
+    }
+  };
   //重置心智圖組件為初始狀態
   const resetMindMap = useCallback(async () => {
     // setRootNode({
