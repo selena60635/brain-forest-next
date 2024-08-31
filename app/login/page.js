@@ -28,14 +28,17 @@ export default function Login() {
   }, [user, router]);
 
   const matchErrMes = (err) => {
-    if (err.message === "Firebase: Error (auth/invalid-credential).") {
-      return "Your email or password might be incorrect.";
-    } else if (err.message === "Firebase: Error (auth/email-already-in-use).") {
-      return "This email is already in use.";
-    } else {
-      return err.message
-        .replace("Firebase: ", "")
-        .replace(/ *\([^)]*\) */g, "");
+    switch (err.code) {
+      case "auth/invalid-credential":
+        return "Your email or password might be incorrect.";
+      case "auth/email-already-in-use":
+        return "This email is already in use.";
+      case "auth/invalid-email":
+        return "Invalid email.";
+      default:
+        return err.message
+          .replace("Firebase: ", "")
+          .replace(/ *\([^)]*\) */g, "");
     }
   };
 
@@ -66,6 +69,7 @@ export default function Login() {
       }
     } catch (err) {
       const errMessage = matchErrMes(err);
+      console.log(err);
       setError(
         isLogin
           ? `Signed in failed：${errMessage}`

@@ -525,7 +525,7 @@ export default function WorkArea({ id }) {
         setIsSaved(true);
       }
     },
-    [setCurrentColorStyle, setRootNode, setNodes]
+    [setCurrentColorStyle, setRootNode, setNodes, router]
   );
 
   //繪製生成選取框
