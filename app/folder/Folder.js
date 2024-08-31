@@ -46,6 +46,48 @@ export default function Folder() {
   const [loading, setLoading] = useState(true); //是否開啟loading page
   const router = useRouter();
 
+  const [page, setPage] = useState(1); //目前頁數
+  const perPage = 15; //每頁顯示的檔案數目
+  //計算顯示的檔案索引範圍
+  const lastItemIndex = page * perPage;
+  const firstItemIndex = lastItemIndex - perPage;
+  const currentMindMaps = mindMaps.slice(firstItemIndex, lastItemIndex);
+  const pageCount = Math.ceil(mindMaps.length / perPage);
+  //更改頁數
+  const paginate = (pageNum) => setPage(pageNum);
+  //生成分頁按鈕元件
+  const pageBtn = (num) => {
+    const buttons = [];
+    for (let i = 1; i <= pageCount; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`rounded-md w-10 h-10 hover:bg-primary hover:text-white hover:border-0 ${
+            page === i
+              ? "bg-primary text-white"
+              : "bg-white border border-gray-400"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return buttons;
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < pageCount) {
+      setPage(page + 1);
+    }
+  };
+
   //刪除相應id的心智圖檔案
   const handleDelete = async (id, e) => {
     e.stopPropagation();
@@ -178,7 +220,7 @@ export default function Folder() {
                 />
               </button>
 
-              {mindMaps.map((mindMap) => (
+              {currentMindMaps.map((mindMap) => (
                 <div
                   key={mindMap.id}
                   className="min-h-24 p-4 pr-8 shadow-md bg-[#17493b] text-white rounded-lg relative cursor-pointer transition-all duration-200 hover:scale-105"
@@ -205,6 +247,31 @@ export default function Folder() {
                   </button>
                 </div>
               ))}
+            </div>
+            <div className="flex justify-center mb-5 mx-auto space-x-4 text-gray-700">
+              <button
+                onClick={handlePrevPage}
+                disabled={page === 1}
+                className={` w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
+                  page === 1
+                    ? "text-gray-300 border-gray-300"
+                    : "border-gray-400  hover:bg-primary hover:text-white hover:border-0"
+                }`}
+              >
+                <MdChevronLeft size={24} />
+              </button>
+              {pageBtn(pageCount)}
+              <button
+                onClick={handleNextPage}
+                disabled={page === pageCount}
+                className={` w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
+                  page === pageCount
+                    ? "text-gray-300 border-gray-300"
+                    : "border-gray-400 hover:bg-primary hover:text-white hover:border-0"
+                }`}
+              >
+                <MdChevronRight size={24} />
+              </button>
             </div>
           </>
         )}
