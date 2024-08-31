@@ -12,25 +12,99 @@ import { BounceLoader } from "react-spinners";
 import SweetAlert from "../SweetAlert";
 
 export default function FileTool({
+  rootNode,
   setRootNode,
+  nodes,
   setNodes,
   setSelectedNodes,
+  currentColorStyle,
   setCurrentColorStyle,
   colorStyles,
   setLoading,
   nodeRefs,
+  currentTheme,
   setCurrentTheme,
+  canvasBgColor,
   setCanvasBgColor,
+  canvasBgStyle,
   setCanvasBgStyle,
   themes,
+  pathWidth,
   setPathWidth,
+  pathStyle,
   setPathStyle,
+  fontFamily,
   setFontFamily,
   setRels,
 }) {
+  const [markdown, setMarkdown] = useState("");
   const [markdownAI, setMarkdownAI] = useState("");
   const [topic, setTopic] = useState("");
   const [loadingAi, setLoadingAi] = useState(false); // 控制 AI 請求的 loading 狀態
+  const [fileName, setFileName] = useState("請選取 .md 檔案");
+
+  //將心智圖轉換成Markdown
+  const convertMindmap = (nodes, level = 0, preface = true) => {
+    let content = "";
+    //前言
+    if (preface) {
+      content += `---\ncolorStyle: ${currentColorStyle}\ncanvasBgStyle: "${canvasBgStyle}"\ncanvasBgColor: "${canvasBgColor}"\ntheme: ${currentTheme}\npathWidth: "${pathWidth}"\npathStyle: "${pathStyle}"\nfontFamily: "${fontFamily}"\n---\n\n`;
+    }
+    nodes.forEach((node) => {
+      if (level === 0) {
+        //處理根節點
+        content += `# ${node.name || "未命名"}\n`;
+        level++;
+      } else if (level === 1) {
+        //處理節點
+        content += `## ${node.name || "未命名"}\n`;
+      } else {
+        //處理子節點
+        content += `${"  ".repeat(level - 2)}- ${node.name || "未命名"}\n`;
+      }
+
+      if (node.children && node.children.length > 0) {
+        //若有children，遞迴處理其子節點
+        content += convertMindmap(node.children, level + 1, false);
+      }
+    });
+    return content;
+  };
+
+  //將轉換完成的Markdown匯出
+  const exportMarkdown = () => {
+    const markdownContent = convertMindmap([rootNode, ...nodes]); //轉換完畢的心智圖組件內容
+    const blob = new Blob([markdownContent], { type: "text/markdown" }); //建立一個包含Markdown內容的Blob物件
+    const url = URL.createObjectURL(blob); //建立blob臨時下載連結
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "mindmap.md";
+    link.click(); //觸發點擊事件下載檔案
+    URL.revokeObjectURL(url); //釋放臨時URL
+  };
+
+  //處理匯入的Markdown文件
+  const importMarkdown = (file) => {
+    const reader = new FileReader(); //建立一個FileReader物件，用於讀取文件內容
+    reader.onload = (e) => {
+      //文件讀取完畢時，設定markdown為獲取到的文件內容
+      const markdown = e.target.result;
+      setMarkdown(markdown);
+    };
+    reader.readAsText(file); //以文本格式讀取文件
+  };
+
+  //上傳檔案後執行處理文件等操作
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]; //取得上傳的檔案
+    if (file) {
+      setFileName(file.name); //設置檔案名狀態
+      importMarkdown(file); //處理上傳的檔案
+    } else {
+      setFileName("請選取 .md 檔案");
+      setMarkdown("");
+    }
+  };
 
   //解析Markdown文件並轉換為子節點元件
   const parseTochildNodes = (
@@ -278,6 +352,43 @@ export default function FileTool({
   };
   return (
     <div className="">
+      <div className="flex flex-col p-4 border-t">
+        <span className="font-medium mb-2">匯出</span>
+        <button
+          onClick={exportMarkdown}
+          className="bg-primary text-white p-2 rounded hover:bg-[#078B68]"
+        >
+          匯出成 Markdown
+        </button>
+      </div>
+      <div className="flex flex-col p-4 border-t">
+        <span className="font-medium mb-2">匯入</span>
+
+        <div className="flex items-center gap-2  border rounded mb-2">
+          <label className="px-2 py-1 rounded-l border-r cursor-pointer hover:bg-gray-100">
+            <input
+              type="file"
+              accept=".md"
+              onChange={handleFileChange}
+              className=" hidden"
+            />
+            選擇檔案
+          </label>
+          <span className="text-gray-400 pointer-events-none">{fileName}</span>
+        </div>
+
+        <button
+          onClick={() => handleCreateMindMap(markdown)}
+          disabled={!markdown}
+          className={`p-2 rounded ${
+            !markdown
+              ? "bg-gray-300 text-white"
+              : "cursor-pointer bg-primary text-white hover:bg-[#078B68]"
+          }`}
+        >
+          生成
+        </button>
+      </div>
       <div className="flex flex-col p-4 border-t">
         <span className="flex items-center font-medium mb-4">
           <RiSparkling2Line className="mr-1" size={18} />

@@ -58,7 +58,7 @@ export default function Folder() {
   //生成分頁按鈕元件
   const pageBtn = (num) => {
     const buttons = [];
-    for (let i = 1; i <= pageCount; i++) {
+    for (let i = 1; i <= num; i++) {
       buttons.push(
         <button
           key={i}

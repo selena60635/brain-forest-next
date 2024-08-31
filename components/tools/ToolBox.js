@@ -325,19 +325,28 @@ export default function ToolBox({
           </TabPanel>
           <TabPanel>
             <FileTool
+              rootNode={rootNode}
               setRootNode={setRootNode}
+              nodes={nodes}
               setNodes={setNodes}
               setSelectedNodes={setSelectedNodes}
+              currentColorStyle={currentColorStyle}
               setCurrentColorStyle={setCurrentColorStyle}
               colorStyles={colorStyles}
               setLoading={setLoading}
               nodeRefs={nodeRefs}
+              currentTheme={currentTheme}
               setCurrentTheme={setCurrentTheme}
+              canvasBgColor={canvasBgColor}
               setCanvasBgColor={setCanvasBgColor}
+              canvasBgStyle={canvasBgStyle}
               setCanvasBgStyle={setCanvasBgStyle}
               themes={themes}
+              pathWidth={pathWidth}
               setPathWidth={setPathWidth}
+              pathStyle={pathStyle}
               setPathStyle={setPathStyle}
+              fontFamily={fontFamily}
               setFontFamily={setFontFamily}
               setRels={setRels}
             />
