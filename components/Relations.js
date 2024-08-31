@@ -291,176 +291,174 @@ export default function Relations({
 
   return (
     <>
-      <div className="absolute z-20 top-0 left-0">
-        <svg
-          className="rels-lines"
-          overflow="visible"
-          xmlns="http://www.w3.org/2000/svg"
-          ref={relsSvgRef}
-        >
-          {rels.map((rel) => {
-            const { from, to, cp1, cp2, midX, midY } = calcRelPath(rel);
-            return (
-              <g
-                key={rel.id}
-                ref={(el) => (relRefs.current[rel.id] = el)}
-                className={`cursor-pointer ${
-                  selectedRelId === rel.id ? "stroke-[8px]" : "stroke-[0px]"
-                }`}
-                tabIndex={0}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedRelId(rel.id);
-                }}
-                onDoubleClick={() => editMode(rel.id)}
-              >
-                <circle
-                  cx={from.x}
-                  cy={from.y}
-                  r={`${5 * zoomLevel}`}
-                  fill={rel.pathColor}
-                />
-                <circle cx={to.x} cy={to.y} r={`${5}`} fill={rel.pathColor} />
-                <path
-                  d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
-                  stroke={rel.pathColor}
-                  fill="none"
-                  strokeWidth={`${1 * zoomLevel}`}
-                  strokeDasharray={`${5 * zoomLevel}`}
-                ></path>
-                <path
-                  d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
-                  stroke="rgba(0, 153, 255, 0.5)"
-                  fill="none"
-                ></path>
-                <path
-                  d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
-                  stroke="rgba(0, 0, 0, 0)"
-                  fill="none"
-                  strokeWidth={`${10 * zoomLevel}`}
-                ></path>
+      <svg
+        className="rels-lines"
+        overflow="visible"
+        xmlns="http://www.w3.org/2000/svg"
+        ref={relsSvgRef}
+      >
+        {rels.map((rel) => {
+          const { from, to, cp1, cp2, midX, midY } = calcRelPath(rel);
+          return (
+            <g
+              key={rel.id}
+              ref={(el) => (relRefs.current[rel.id] = el)}
+              className={`cursor-pointer pointer-events-auto ${
+                selectedRelId === rel.id ? "stroke-[8px]" : "stroke-[0px]"
+              }`}
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedRelId(rel.id);
+              }}
+              onDoubleClick={() => editMode(rel.id)}
+            >
+              <circle
+                cx={from.x}
+                cy={from.y}
+                r={`${5 * zoomLevel}`}
+                fill={rel.pathColor}
+              />
+              <circle cx={to.x} cy={to.y} r={`${5}`} fill={rel.pathColor} />
+              <path
+                d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
+                stroke={rel.pathColor}
+                fill="none"
+                strokeWidth={`${1 * zoomLevel}`}
+                strokeDasharray={`${5 * zoomLevel}`}
+              ></path>
+              <path
+                d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
+                stroke="rgba(0, 153, 255, 0.5)"
+                fill="none"
+              ></path>
+              <path
+                d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
+                stroke="rgba(0, 0, 0, 0)"
+                fill="none"
+                strokeWidth={`${10 * zoomLevel}`}
+              ></path>
 
-                {isEdit?.id === rel.id ? (
-                  <foreignObject
-                    x={midX - isEdit.width / 2}
-                    y={midY - 10}
-                    width={isEdit.width}
-                    height={isEdit.height}
-                  >
-                    <input
-                      value={rel.name}
-                      className=""
-                      onChange={(e) =>
-                        setRels((prev) =>
-                          prev.map((r) =>
-                            r.id === rel.id ? { ...r, name: e.target.value } : r
-                          )
+              {isEdit?.id === rel.id ? (
+                <foreignObject
+                  x={midX - isEdit.width / 2}
+                  y={midY - 10}
+                  width={isEdit.width}
+                  height={isEdit.height}
+                >
+                  <input
+                    value={rel.name}
+                    className=""
+                    onChange={(e) =>
+                      setRels((prev) =>
+                        prev.map((r) =>
+                          r.id === rel.id ? { ...r, name: e.target.value } : r
                         )
+                      )
+                    }
+                    onBlur={(e) => unEditMode(rel.id, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === "Tab") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        unEditMode(rel.id, e.target.value);
                       }
-                      onBlur={(e) => unEditMode(rel.id, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === "Tab") {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          unEditMode(rel.id, e.target.value);
-                        }
-                      }}
-                      autoFocus
-                      style={{
-                        minWidth: `${isEdit.width}px`,
-                        width: `${isEdit.width}px`,
-                        height: "100%",
-                        padding: "2px",
-                        border: "1px solid #000",
-                      }}
-                    />
-                  </foreignObject>
-                ) : (
-                  <>
-                    <text
-                      x={midX}
-                      y={midY}
-                      fill={rel.font.color}
-                      textAnchor="middle"
-                      alignmentBaseline="middle"
-                      stroke="white"
-                      strokeWidth={`${4 * zoomLevel}`}
-                      paintOrder="stroke"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{
-                        fontFamily: `${rel.font.family}`,
-                        fontSize: `${rel.font.size}`,
-                        fontWeight: `${rel.font.weight}`,
-                        fontStyle: `${rel.font.isItalic ? "italic" : "normal"}`,
-                        textDecorationLine: `${
-                          rel.font.isStrikethrough ? "line-through" : "none"
-                        }`,
-                      }}
-                    >
-                      {rel.name}
-                    </text>
-                  </>
-                )}
-                {selectedRelId === rel.id && (
-                  <>
-                    <circle
-                      cx={cp1.x}
-                      cy={cp1.y}
-                      r={`${10 * zoomLevel}`}
-                      fill="rgba(255, 255, 0, 0)"
-                      onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
-                      className="cp1"
-                    />
-                    <circle
-                      cx={cp1.x}
-                      cy={cp1.y}
-                      r={`${5 * zoomLevel}`}
-                      fill="red"
-                      onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
-                      className="cp1"
-                    />
-                    <circle
-                      cx={cp2.x}
-                      cy={cp2.y}
-                      r={`${10 * zoomLevel}`}
-                      fill="rgba(255, 255, 0, 0)"
-                      onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
-                      className="cp2"
-                    />
-                    <circle
-                      cx={cp2.x}
-                      cy={cp2.y}
-                      r={`${5 * zoomLevel}`}
-                      fill="red"
-                      onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
-                      className="cp2"
-                    />
-                    <line
-                      x1={from.x}
-                      y1={from.y}
-                      x2={cp1.x}
-                      y2={cp1.y}
-                      stroke="red"
-                      strokeWidth={`${1 * zoomLevel}`}
-                      className="cp1-line"
-                    />
-                    <line
-                      x1={to.x}
-                      y1={to.y}
-                      x2={cp2.x}
-                      y2={cp2.y}
-                      stroke="red"
-                      strokeWidth={`${1 * zoomLevel}`}
-                      className="cp2-line"
-                    />
-                  </>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
+                    }}
+                    autoFocus
+                    style={{
+                      minWidth: `${isEdit.width}px`,
+                      width: `${isEdit.width}px`,
+                      height: "100%",
+                      padding: "2px",
+                      border: "1px solid #000",
+                    }}
+                  />
+                </foreignObject>
+              ) : (
+                <>
+                  <text
+                    x={midX}
+                    y={midY}
+                    fill={rel.font.color}
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    stroke="white"
+                    strokeWidth={`${4 * zoomLevel}`}
+                    paintOrder="stroke"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      fontFamily: `${rel.font.family}`,
+                      fontSize: `${rel.font.size}`,
+                      fontWeight: `${rel.font.weight}`,
+                      fontStyle: `${rel.font.isItalic ? "italic" : "normal"}`,
+                      textDecorationLine: `${
+                        rel.font.isStrikethrough ? "line-through" : "none"
+                      }`,
+                    }}
+                  >
+                    {rel.name}
+                  </text>
+                </>
+              )}
+              {selectedRelId === rel.id && (
+                <>
+                  <circle
+                    cx={cp1.x}
+                    cy={cp1.y}
+                    r={`${10 * zoomLevel}`}
+                    fill="rgba(255, 255, 0, 0)"
+                    onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
+                    className="cp1"
+                  />
+                  <circle
+                    cx={cp1.x}
+                    cy={cp1.y}
+                    r={`${5 * zoomLevel}`}
+                    fill="red"
+                    onMouseDown={(e) => handleMouseDown(e, rel, "cp1")}
+                    className="cp1"
+                  />
+                  <circle
+                    cx={cp2.x}
+                    cy={cp2.y}
+                    r={`${10 * zoomLevel}`}
+                    fill="rgba(255, 255, 0, 0)"
+                    onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
+                    className="cp2"
+                  />
+                  <circle
+                    cx={cp2.x}
+                    cy={cp2.y}
+                    r={`${5 * zoomLevel}`}
+                    fill="red"
+                    onMouseDown={(e) => handleMouseDown(e, rel, "cp2")}
+                    className="cp2"
+                  />
+                  <line
+                    x1={from.x}
+                    y1={from.y}
+                    x2={cp1.x}
+                    y2={cp1.y}
+                    stroke="red"
+                    strokeWidth={`${1 * zoomLevel}`}
+                    className="cp1-line"
+                  />
+                  <line
+                    x1={to.x}
+                    y1={to.y}
+                    x2={cp2.x}
+                    y2={cp2.y}
+                    stroke="red"
+                    strokeWidth={`${1 * zoomLevel}`}
+                    className="cp2-line"
+                  />
+                </>
+              )}
+            </g>
+          );
+        })}
+      </svg>
     </>
   );
 }
