@@ -18,6 +18,7 @@ import ColorStyleTool from "../tools/ColorStyleTool";
 import ThemeTool from "../tools/ThemeTool";
 import CanvasTool from "../tools/CanvasTool";
 import FontFamilyTool from "../tools/FontFamilyTool";
+import FileTool from "../tools/FileTool";
 
 export const updateNodes = (nodes, updateFn) => {
   return nodes.map((node) => {
@@ -110,9 +111,16 @@ export default function ToolBox({
   setColorIndex,
   nodesColor,
   setNodesColor,
+  setSelectedNodes,
+  setLoading,
+  nodeRefs,
   themes,
   currentTheme,
   setCurrentTheme,
+  canvasBgColor,
+  setCanvasBgColor,
+  canvasBgStyle,
+  setCanvasBgStyle,
   pathWidth,
   setPathWidth,
   pathStyle,
@@ -122,10 +130,6 @@ export default function ToolBox({
   rels,
   setRels,
   selectedRelId,
-  canvasBgColor,
-  setCanvasBgColor,
-  canvasBgStyle,
-  setCanvasBgStyle,
 }) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [fontSize, setFontSize] = useState("16");
@@ -320,7 +324,23 @@ export default function ToolBox({
             </div>
           </TabPanel>
           <TabPanel>
-            <div>tab3</div>
+            <FileTool
+              setRootNode={setRootNode}
+              setNodes={setNodes}
+              setSelectedNodes={setSelectedNodes}
+              setCurrentColorStyle={setCurrentColorStyle}
+              colorStyles={colorStyles}
+              setLoading={setLoading}
+              nodeRefs={nodeRefs}
+              setCurrentTheme={setCurrentTheme}
+              setCanvasBgColor={setCanvasBgColor}
+              setCanvasBgStyle={setCanvasBgStyle}
+              themes={themes}
+              setPathWidth={setPathWidth}
+              setPathStyle={setPathStyle}
+              setFontFamily={setFontFamily}
+              setRels={setRels}
+            />
           </TabPanel>
         </TabPanels>
       </TabGroup>

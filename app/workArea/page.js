@@ -1249,10 +1249,15 @@ export default function WorkArea({ id }) {
               nodesColor={nodesColor}
               setNodesColor={setNodesColor}
               setSelectedNodes={setSelectedNodes}
+              setLoading={setLoading}
               nodeRefs={nodeRefs}
               themes={themes}
               currentTheme={currentTheme}
               setCurrentTheme={setCurrentTheme}
+              canvasBgColor={canvasBgColor}
+              setCanvasBgColor={setCanvasBgColor}
+              canvasBgStyle={canvasBgStyle}
+              setCanvasBgStyle={setCanvasBgStyle}
               pathWidth={pathWidth}
               setPathWidth={setPathWidth}
               pathStyle={pathStyle}
@@ -1262,10 +1267,6 @@ export default function WorkArea({ id }) {
               rels={rels}
               setRels={setRels}
               selectedRelId={selectedRelId}
-              canvasBgColor={canvasBgColor}
-              setCanvasBgColor={setCanvasBgColor}
-              canvasBgStyle={canvasBgStyle}
-              setCanvasBgStyle={setCanvasBgStyle}
             />
             <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
               <Button

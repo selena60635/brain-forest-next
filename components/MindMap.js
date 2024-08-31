@@ -201,13 +201,13 @@ export default function MindMap({
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (selectBox) {
+      if (selectBox || e.target.tagName === "INPUT") {
         return;
       }
       if (
         (["Enter", "Delete", "Tab"].includes(e.key) &&
           selectedNodes.length === 1) ||
-        [" ", "F1", "F2"].includes(e.key)
+        ["F1", "F2"].includes(e.key)
       ) {
         e.preventDefault();
         e.stopPropagation();
@@ -245,7 +245,9 @@ export default function MindMap({
         handleSaveMindMap();
       }
       //pan mode
-      if (e.key === " ") {
+      if (e.key === " " && !isAnyEditing) {
+        e.preventDefault();
+        e.stopPropagation();
         togglePanMode();
       }
       //ToCenter
