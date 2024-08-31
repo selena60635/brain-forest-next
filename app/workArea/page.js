@@ -491,7 +491,6 @@ export default function WorkArea({ id }) {
           // await document.fonts.load(
           //   `${mindMapData.rootNode.font.size} ${mindMapData.fontFamily}`
           // );
-
           setRootNode(mindMapData.rootNode);
           setNodes(mindMapData.nodes);
           setCurrentColorStyle((prev) => mindMapData.currentColorStyle || prev);
@@ -510,6 +509,8 @@ export default function WorkArea({ id }) {
           nodeRefs.current = new Array(mindMapData.nodes.length)
             .fill(null)
             .map(() => React.createRef());
+        } else {
+          router.push("/");
         }
       } catch (err) {
         SweetAlert({
