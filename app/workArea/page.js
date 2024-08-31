@@ -35,6 +35,7 @@ export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export default function WorkArea({ id }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true); //是否開啟loading page
+  const [isSaved, setIsSaved] = useState(true); //紀錄檔案是否還未儲存
   const [isPanMode, setIsPanMode] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -416,6 +417,7 @@ export default function WorkArea({ id }) {
 
   const handleSaveMindMap = async () => {
     await saveMindMap(id);
+    setIsSaved(true);
   };
 
   //重置心智圖組件為初始狀態
@@ -441,6 +443,7 @@ export default function WorkArea({ id }) {
     // nodeRefs.current = [];
     await delay(1000); // loading頁面至少顯示1秒
     setLoading(false);
+    setIsSaved(true);
   }, []);
 
   //獲取檔案並設定心智圖組件狀態
@@ -486,6 +489,7 @@ export default function WorkArea({ id }) {
       } finally {
         await delay(1000); // loading頁面至少顯示1秒
         setLoading(false);
+        setIsSaved(true);
       }
     },
     [setCurrentColorStyle, setRootNode, setNodes]
@@ -1019,6 +1023,14 @@ export default function WorkArea({ id }) {
     });
   };
 
+  //更新isSaved狀態
+  const nodesStr = JSON.stringify(nodes);
+  const rootNodeStr = JSON.stringify(rootNode);
+  const relsStr = JSON.stringify(rels);
+  useEffect(() => {
+    setIsSaved(false);
+  }, [nodesStr, rootNodeStr, canvasBgStyle, canvasBgColor, relsStr]);
+
   //監聽全螢幕事件(F12、Esc)，使isFullScreen能夠正確設置
   useEffect(() => {
     const toggleFullScreenChange = () => {
@@ -1098,6 +1110,7 @@ export default function WorkArea({ id }) {
                   handleLinkMode={handleLinkMode}
                   selectedRelId={selectedRelId}
                   handleSaveMindMap={handleSaveMindMap}
+                  isSaved={isSaved}
                 />
               </div>
 

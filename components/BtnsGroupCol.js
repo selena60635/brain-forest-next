@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@headlessui/react";
 import { RiDeleteBinLine } from "react-icons/ri";
+import { MdError } from "react-icons/md";
 
 export default function BtnsGroupCol({
   rootNode,
@@ -16,6 +17,7 @@ export default function BtnsGroupCol({
   handleLinkMode,
   selectedRelId,
   handleSaveMindMap,
+  isSaved,
 }) {
   const handleAddSiblingNode = (e) => {
     e.stopPropagation();
@@ -160,6 +162,12 @@ export default function BtnsGroupCol({
         </Button>
       </div>
       <div className="btns-group flex-col w-12 relative">
+        {!isSaved && (
+          <MdError
+            size={24}
+            className="text-red-500 absolute -top-2 -right-2"
+          />
+        )}
         <Button className="btn aspect-square text-gray-700">
           <svg
             height="24px"
