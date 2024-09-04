@@ -25,7 +25,7 @@ import { updateSelectedNodes } from "../../components/tools/ToolBox";
 import MindMap from "../../components/MindMap";
 import BtnsGroupCol from "../../components/BtnsGroupCol";
 import BtnsGroupRow from "../../components/BtnsGroupRow";
-import Shortcuts from "../../components/Shortcuts";
+import Info from "../../components/Info";
 import ToolBox from "../../components/tools/ToolBox";
 import SweetAlert from "../../components/SweetAlert";
 import Loading from "../../components/Loading";
@@ -1157,9 +1157,8 @@ export default function WorkArea({ id }) {
                 />
               </div>
 
-              <div className="btns-group bottom-10 left-5 fixed z-20 h-12">
-                <Shortcuts />
-              </div>
+              <Info />
+
               <div
                 className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out ${
                   isToolBoxOpen ? "right-[356px]" : "right-10"
