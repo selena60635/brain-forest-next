@@ -18,6 +18,7 @@ export default function BtnsGroupCol({
   selectedRelId,
   handleSaveMindMap,
   isSaved,
+  setLayoutMode,
 }) {
   const handleAddSiblingNode = (e) => {
     e.stopPropagation();
@@ -93,7 +94,7 @@ export default function BtnsGroupCol({
         </Button>
 
         <Button
-          className="btn aspect-square text-red-700"
+          className="btn aspect-square text-gray-700"
           onClick={() => handleLinkMode(selectedNodes[0])}
         >
           <svg
@@ -124,7 +125,10 @@ export default function BtnsGroupCol({
         </Button>
       </div>
       <div className="btns-group flex-col w-12">
-        <Button className="btn aspect-square text-gray-700">
+        <Button
+          className="btn aspect-square text-gray-700"
+          onClick={() => setLayoutMode("equal")}
+        >
           <svg
             height="24px"
             viewBox="0 -960 960 960"
@@ -134,7 +138,10 @@ export default function BtnsGroupCol({
             <path d="M 468.32426 -855.13715 A 80 80 0 0 0 388.32765 -775.14053 A 80 80 0 0 0 430.21913 -705.05286 L 430.21913 -556.7409 A 110 110 0 0 0 388.16652 -527.57799 L 247.02446 -575.1087 A 80 80 0 0 0 168.96129 -637.70425 A 80 80 0 0 0 88.964675 -557.70763 A 80 80 0 0 0 168.96129 -477.71101 A 80 80 0 0 0 222.93685 -498.81787 L 360.4537 -452.49556 A 110 110 0 0 0 380.59383 -391.35011 L 295.1191 -283.1573 A 80 80 0 0 0 270.70926 -287.02421 A 80 80 0 0 0 190.71264 -207.02759 A 80 80 0 0 0 270.70926 -127.03098 A 80 80 0 0 0 350.70587 -207.02759 A 80 80 0 0 0 349.17522 -222.65634 L 447.70076 -347.2835 A 110 110 0 0 0 470.33828 -344.625 A 110 110 0 0 0 498.0511 -348.33078 L 592.22637 -229.18174 A 80 80 0 0 0 589.00395 -207.02759 A 80 80 0 0 0 669.00057 -127.03098 A 80 80 0 0 0 749.07775 -207.02759 A 80 80 0 0 0 669.00057 -287.02421 A 80 80 0 0 0 650.39108 -284.60739 L 562.90234 -395.29758 A 110 110 0 0 0 579.17557 -439.12251 L 729.82378 -489.87565 A 80 80 0 0 0 772.0375 -477.71101 A 80 80 0 0 0 852.03412 -557.70763 A 80 80 0 0 0 772.0375 -637.70425 A 80 80 0 0 0 692.28257 -561.65509 L 560.64664 -517.26624 A 110 110 0 0 0 510.21574 -557.06314 L 510.21574 -707.14743 A 80 80 0 0 0 548.32088 -775.14053 A 80 80 0 0 0 468.32426 -855.13715 z" />
           </svg>
         </Button>
-        <Button className="btn aspect-square text-gray-700">
+        <Button
+          className="btn aspect-square text-gray-700"
+          onClick={() => setLayoutMode("left")}
+        >
           <svg
             height="24px"
             viewBox="0 -960 960 960"
@@ -147,7 +154,10 @@ export default function BtnsGroupCol({
             />
           </svg>
         </Button>
-        <Button className="btn aspect-square text-gray-700">
+        <Button
+          className="btn aspect-square text-gray-700"
+          onClick={() => setLayoutMode("right")}
+        >
           <svg
             height="24px"
             viewBox="0 -960 960 960"

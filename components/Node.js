@@ -14,12 +14,13 @@ const ChildNode = ({
   setSelectedNodes,
   selectedNodes,
   parentRef,
-
   sumRefs,
   isSelectedSum,
   handleNodeClick,
   setIsAnyEditing,
   zoomLevel,
+  layoutMode,
+  align,
 }) => {
   const [isEditing, setIsEditing] = useState(childNode.isNew);
   const inputRef = useRef(null);
@@ -83,39 +84,60 @@ const ChildNode = ({
     setIsAnyEditing(false);
   };
   //取得子節點svg位置
-  const getChildSvgLoc = (childRef, parentRef, svgRef) => {
+  const getChildSvgLoc = (childRef, parentRef, svgRef, align) => {
     if (childRef?.current && parentRef?.current && svgRef?.current) {
       const childRect = childRef.current.getBoundingClientRect();
       const parentRect = parentRef.current.getBoundingClientRect();
       const svgRect = svgRef.current.getBoundingClientRect();
       const parentOffset = parseInt(parentNode.outline.width, 10);
       const childOffset = parseInt(childNode.outline.width, 10);
-
+      const x =
+        layoutMode === "left" || align === "left"
+          ? parentRect.left -
+            svgRect.left +
+            parentRect.width +
+            (parentNode.outline.style !== "none" ? parentOffset : -2) *
+              zoomLevel
+          : parentRect.left -
+            svgRect.left -
+            (parentNode.outline.style !== "none" ? parentOffset : -2) *
+              zoomLevel;
+      const childX =
+        layoutMode === "left" || align === "left"
+          ? childRect.left -
+            svgRect.left -
+            (childNode.outline.style !== "none" ? childOffset : 0) * zoomLevel
+          : childRect.left -
+            svgRect.left +
+            childRect.width +
+            (childNode.outline.style !== "none" ? childOffset : 0) * zoomLevel;
       return {
-        x:
-          parentRect.left -
-          svgRect.left +
-          parentRect.width +
-          (parentNode.outline.style !== "none" ? parentOffset : -2) * zoomLevel,
+        x,
         y: parentRect.top - svgRect.top + parentRect.height / 2,
-        childX:
-          childRect.left -
-          svgRect.left -
-          (childNode.outline.style !== "none" ? childOffset : 0) * zoomLevel,
+        childX,
         childY: childRect.top - svgRect.top + childRect.height / 2,
+        // height: childRect.height,
       };
     }
 
     return { x: 0, y: 0, childX: 0, childY: 0 };
   };
 
-  const childLoc = getChildSvgLoc(childRef, parentRef, svgRef);
+  const childLoc = getChildSvgLoc(childRef, parentRef, svgRef, align);
 
   return (
     <div
-      className={`flex items-center ml-24 ${
-        isSelectedSum ? "selected-sum" : ""
-      }`}
+      className={`flex items-center ${
+        layoutMode === "left"
+          ? "ml-24"
+          : layoutMode === "right"
+          ? "mr-24 flex-row-reverse"
+          : layoutMode === "equal" && align === "left"
+          ? "ml-24"
+          : layoutMode === "equal" && align === "right"
+          ? "mr-24 flex-row-reverse"
+          : ""
+      } ${isSelectedSum ? "selected-sum" : ""} `}
       style={{
         "--outline-width": `${
           childNode.outline.style !== "none"
@@ -125,7 +147,7 @@ const ChildNode = ({
       }}
     >
       <div
-        className={`child-node ${isSelected ? "selected" : ""}`}
+        className={`child-node  ${isSelected ? "selected" : ""}`}
         style={{
           "--outline-width": `${
             childNode.outline.style !== "none"
@@ -182,7 +204,11 @@ const ChildNode = ({
           <span>{childNode.name}</span>
         )}
       </div>
-      <div className="children">
+      <div
+        className={`children ${
+          layoutMode === "left" ? "items-start" : "items-end"
+        }`}
+      >
         {childNode.children &&
           childNode.children.length > 0 &&
           childNode.children.map((subchildNode, index) => {
@@ -212,6 +238,8 @@ const ChildNode = ({
                 handleNodeClick={handleNodeClick}
                 setIsAnyEditing={setIsAnyEditing}
                 zoomLevel={zoomLevel}
+                layoutMode={layoutMode}
+                align={align}
               />
             );
           })}
@@ -225,6 +253,8 @@ const ChildNode = ({
           isSelectedSum={isSelectedSum}
           setIsAnyEditing={setIsAnyEditing}
           zoomLevel={zoomLevel}
+          layoutMode={layoutMode}
+          align={align}
         />
       )}
       <svg
@@ -242,6 +272,7 @@ const ChildNode = ({
           strokeWidth={childNode.path.width * zoomLevel}
           strokeDasharray={childNode.path.style * zoomLevel || 0}
         />
+        {/* <circle cx={childLoc.childX} cy={childLoc.childY} r="5" fill="blue" /> */}
       </svg>
     </div>
   );
@@ -256,13 +287,14 @@ export default function Node({
   selectedNodes,
   nodeRefs,
   setSelectedNodes,
-
   sumRefs,
   isSelectedSum,
   nodes,
   handleNodeClick,
   setIsAnyEditing,
   zoomLevel,
+  layoutMode,
+  align,
 }) {
   const [isEditing, setIsEditing] = useState(node.isNew);
   const inputRef = useRef(null);
@@ -305,9 +337,17 @@ export default function Node({
 
   return (
     <div
-      className={`flex items-center ml-40 ${
-        isSelectedSum ? "selected-sum" : ""
-      }`}
+      className={`flex items-center  ${
+        layoutMode === "left"
+          ? "ml-40"
+          : layoutMode === "right"
+          ? "mr-40 flex-row-reverse"
+          : layoutMode === "equal" && align === "left"
+          ? "ml-40"
+          : layoutMode === "equal" && align === "right"
+          ? "mr-40 flex-row-reverse"
+          : ""
+      } ${isSelectedSum ? "selected-sum" : ""}`}
       style={{
         "--outline-width": `${
           node.outline.style !== "none" ? parseInt(node.outline.width, 10) : 0
@@ -372,7 +412,11 @@ export default function Node({
       </div>
 
       {node.children && node.children.length > 0 && (
-        <div className="children flex flex-col items-start ">
+        <div
+          className={`children ${
+            layoutMode === "left" ? "items-start" : "items-end"
+          }`}
+        >
           {node.children.map((childNode, childIndex) => {
             if (!nodeRefs.current[node.id][childIndex]) {
               //若nodeRefs中沒有當前子節點的引用，建立一個新的引用
@@ -399,6 +443,8 @@ export default function Node({
                 handleNodeClick={handleNodeClick}
                 setIsAnyEditing={setIsAnyEditing}
                 zoomLevel={zoomLevel}
+                layoutMode={layoutMode}
+                align={align}
               />
             );
           })}
@@ -414,6 +460,8 @@ export default function Node({
           isSelectedSum={isSelectedSum}
           setIsAnyEditing={setIsAnyEditing}
           zoomLevel={zoomLevel}
+          layoutMode={layoutMode}
+          align={align}
         />
       )}
     </div>

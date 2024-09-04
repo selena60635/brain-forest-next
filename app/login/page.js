@@ -69,7 +69,6 @@ export default function Login() {
       }
     } catch (err) {
       const errMessage = matchErrMes(err);
-      console.log(err);
       setError(
         isLogin
           ? `Signed in failed：${errMessage}`

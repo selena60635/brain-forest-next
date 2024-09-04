@@ -43,6 +43,7 @@ export default function WorkArea({ id }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isToolBoxOpen, setIsToolBoxOpen] = useState(false);
+  const [layoutMode, setLayoutMode] = useState("left");
 
   const [relMode, setRelMode] = useState(false);
   const [rels, setRels] = useState([]);
@@ -383,6 +384,7 @@ export default function WorkArea({ id }) {
         path: { pathWidth, pathStyle },
         fontFamily,
         rels,
+        layoutMode,
         rootNode,
         nodes,
         lastSavedAt: Timestamp.now(),
@@ -428,6 +430,7 @@ export default function WorkArea({ id }) {
         path: { pathWidth, pathStyle },
         fontFamily,
         rels,
+        layoutMode,
         rootNode,
         nodes,
         lastSavedAt: Timestamp.now(),
@@ -509,6 +512,10 @@ export default function WorkArea({ id }) {
           nodeRefs.current = new Array(mindMapData.nodes.length)
             .fill(null)
             .map(() => React.createRef());
+          // if (mindMapData.layoutMode) {
+          //   setLayoutMode(mindMapData.layoutMode);
+          // }
+          setLayoutMode((prev) => mindMapData?.layoutMode || prev);
         } else {
           router.push("/");
         }
@@ -841,10 +848,6 @@ export default function WorkArea({ id }) {
 
       setNodes((prev) => {
         const newNodes = deleteNodes(prev, idArr);
-
-        nodeRefs.current = nodeRefs.current.filter(
-          (item, index) => !idArr.includes(prev[index]?.id)
-        );
         // 檢查每個 rel，若其 from 或 to 節點在 idsToDelete 中，則刪除該 rel
         setRels((prevRels) => {
           return prevRels.filter((rel) => {
@@ -882,7 +885,6 @@ export default function WorkArea({ id }) {
       setSelectedNodes([]);
     },
     [
-      nodeRefs,
       setNodes,
       setSelectedNodes,
       sumRefs,
@@ -1062,7 +1064,14 @@ export default function WorkArea({ id }) {
   const relsStr = JSON.stringify(rels);
   useEffect(() => {
     setIsSaved(false);
-  }, [nodesStr, rootNodeStr, canvasBgStyle, canvasBgColor, relsStr]);
+  }, [
+    nodesStr,
+    rootNodeStr,
+    canvasBgStyle,
+    canvasBgColor,
+    relsStr,
+    layoutMode,
+  ]);
 
   //監聽全螢幕事件(F12、Esc)，使isFullScreen能夠正確設置
   useEffect(() => {
@@ -1144,6 +1153,7 @@ export default function WorkArea({ id }) {
                   selectedRelId={selectedRelId}
                   handleSaveMindMap={handleSaveMindMap}
                   isSaved={isSaved}
+                  setLayoutMode={setLayoutMode}
                 />
               </div>
 
@@ -1219,6 +1229,7 @@ export default function WorkArea({ id }) {
                 handleZoom={handleZoom}
                 zoomLevel={zoomLevel}
                 handleSaveMindMap={handleSaveMindMap}
+                layoutMode={layoutMode}
               />
             </div>
           </div>

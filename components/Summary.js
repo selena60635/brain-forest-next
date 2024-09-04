@@ -11,11 +11,12 @@ export default function Summary({
   summary,
   nodes,
   setNodes,
-
   sumRefs,
   isSelectedSum,
   zoomLevel,
   setIsAnyEditing,
+  layoutMode,
+  align,
 }) {
   const [isEditing, setIsEditing] = useState(summary.isNew);
   const inputRef = useRef(null);
@@ -91,48 +92,72 @@ export default function Summary({
       const svgRect = sumSvgRef.current.getBoundingClientRect();
       // const offset = parseInt(node.outline.width, 10);
       const height = sumRect.height;
+      const width = sumRect.width;
       return {
         x: sumRect.left - svgRect.left,
         y: sumRect.top - svgRect.top + sumRect.height / 2,
         height,
+        width,
       };
     }
     return { x: 0, y: 0 };
   }, []);
 
   // 當 nodes 狀態改變時，更新svg path，重繪summary連接線
+  const sumStr = JSON.stringify(summary);
   useLayoutEffect(() => {
     if (sumRef.current && sumSvgRef.current) {
       const sumLoc = getSumSvgLoc(sumRef, summary, sumSvgRef);
-      const { x, y, height } = sumLoc;
+      const { x, y, height, width } = sumLoc;
       const startY = y - height / 2;
       const endY = y + height / 2;
       const radius = 6 * zoomLevel;
       const offset = 20 * zoomLevel;
-
-      setSumPath(`
-          M ${x - radius} ${startY + offset}
-          c ${radius / 2} 0, ${radius} ${radius / 2}, ${radius} ${radius}
-          L ${x} ${startY + radius + offset}
-          L ${x} ${endY - radius - offset}
-          c 0 ${radius / 2}, -${radius / 2} ${radius}, -${radius} ${radius}
-          M ${x} ${y}
-          h ${radius}
-        `);
+      if (layoutMode === "right" || align === "right") {
+        setSumPath(` M ${x + radius + width} ${startY + offset} c ${
+          -radius / 2
+        }, 0, ${-radius}, ${radius / 2}, ${-radius}, ${radius} L ${x + width} ${
+          startY + radius + offset
+        } L ${x + width} ${endY - radius - offset} c 0, ${radius / 2}, ${
+          radius / 2
+        }, ${radius}, ${radius}, ${radius} M ${x + width} ${y} h ${-radius}
+`);
+      } else {
+        setSumPath(`M ${x - radius} ${startY + offset} c ${
+          radius / 2
+        } 0, ${radius} ${radius / 2}, ${radius} ${radius} L ${x} ${
+          startY + radius + offset
+        } L ${x} ${endY - radius - offset} c 0 ${radius / 2}, -${
+          radius / 2
+        } ${radius}, -${radius} ${radius}M ${x} ${y}
+    h ${radius}
+  `);
+      }
     }
-  }, [sumRef, sumSvgRef, getSumSvgLoc, summary, zoomLevel, nodes]);
+  }, [
+    sumRef,
+    sumSvgRef,
+    getSumSvgLoc,
+    summary,
+    sumStr,
+    zoomLevel,
+    nodes,
+    layoutMode,
+    align,
+  ]);
 
   return (
     <>
       <div
-        style={{
-          "--outline-width": "-5px",
-        }}
-        className={`flex items-center ml-6 self-stretch`}
+        className={`flex items-center ${
+          layoutMode === "right" || align === "right" ? "mr-6" : "ml-6"
+        } self-stretch`}
         ref={sumRef}
       >
         <div
-          className={`sum-node ${isSelectedSum ? "selected" : ""}`}
+          className={`sum-node ${
+            layoutMode === "right" || align === "right" ? "mr-4" : "ml-4"
+          } ${isSelectedSum ? "selected" : ""}`}
           style={{
             "--outline-width": `${
               summary.outline.style !== "none"

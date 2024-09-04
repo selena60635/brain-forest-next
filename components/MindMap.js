@@ -25,9 +25,7 @@ export default function MindMap({
   addSiblingNode,
   addSiblingChildNode,
   addChildNode,
-
   getNodeCanvasLoc,
-
   togglePanMode,
   sumRefs,
   addSummary,
@@ -47,22 +45,30 @@ export default function MindMap({
   handleZoom,
   zoomLevel,
   handleSaveMindMap,
+  layoutMode,
 }) {
   const [isAnyEditing, setIsAnyEditing] = useState(false);
   const svgRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的svg Dom元素
 
   //取得根結點svg位置
-  const getRootSvgLoc = (outlineWidth) => {
+  const getRootSvgLoc = (outlineWidth, align) => {
     if (rootRef.current && svgRef.current) {
       const rootRect = rootRef.current.getBoundingClientRect(); // 獲取根節點的矩形物件
       const svgRect = svgRef.current.getBoundingClientRect(); // 獲取 SVG 的矩形物件
       const offset = parseInt(outlineWidth, 10);
+      // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
+      const x =
+        layoutMode === "left" || align === "right"
+          ? rootRect.left -
+            svgRect.left +
+            rootRect.width +
+            (rootNode.outline.style !== "none" ? offset : -2) * zoomLevel
+          : rootRect.left -
+            svgRect.left -
+            (rootNode.outline.style !== "none" ? offset : -2) * zoomLevel;
+
       return {
-        x:
-          rootRect.left -
-          svgRect.left +
-          rootRect.width +
-          (rootNode.outline.style !== "none" ? offset : -2) * zoomLevel, // 計算path根節點接點的X坐標(相對於g，也就是將g當作視口去計算)
+        x,
         y: rootRect.top - svgRect.top + rootRect.height / 2, // 計算根節點的中心點相對於g的Y坐標
       };
     }
@@ -72,22 +78,30 @@ export default function MindMap({
 
   //取得節點svg位置
   const getNodeSvgLoc = useCallback(
-    (nodeRef, node) => {
+    (nodeRef, node, align) => {
       if (nodeRef && nodeRef.current && svgRef.current) {
         const nodeRect = nodeRef.current.getBoundingClientRect();
         const svgRect = svgRef.current.getBoundingClientRect();
         const offset = parseInt(node.outline.width, 10);
+
+        const x =
+          layoutMode === "left" || align === "right"
+            ? nodeRect.left -
+              svgRect.left -
+              (node.outline.style !== "none" ? offset : 0) * zoomLevel
+            : nodeRect.left -
+              svgRect.left +
+              nodeRect.width +
+              (node.outline.style !== "none" ? offset : 0) * zoomLevel;
+
         return {
-          x:
-            nodeRect.left -
-            svgRect.left -
-            (node.outline.style !== "none" ? offset : 0) * zoomLevel,
+          x,
           y: nodeRect.top - svgRect.top + nodeRect.height / 2,
         };
       }
       return { x: 0, y: 0 };
     },
-    [svgRef, zoomLevel]
+    [svgRef, zoomLevel, layoutMode]
   );
 
   //更新節點與根節點的連接線
@@ -101,7 +115,7 @@ export default function MindMap({
 
   useLayoutEffect(() => {
     updateLocs();
-  }, [nodesStr, rootNodeStr, updateLocs, zoomLevel, rels]);
+  }, [nodesStr, rootNodeStr, updateLocs, zoomLevel, rels, layoutMode]);
 
   //判定是否被選取
   const isNodeSelected = useCallback(
@@ -316,11 +330,13 @@ export default function MindMap({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const rootSvgLoc = getRootSvgLoc(rootNode.outline.width);
+  let rootSvgLoc = getRootSvgLoc(rootNode.outline.width);
 
   return (
     <>
-      <div className="mindmap">
+      <div
+        className={`mindmap ${layoutMode === "right" && "flex-row-reverse"}`}
+      >
         <Relations
           rootNode={rootNode}
           rootRef={rootRef}
@@ -338,66 +354,184 @@ export default function MindMap({
           isPanMode={isPanMode}
           setIsAnyEditing={setIsAnyEditing}
         />
-
-        <RootNode
-          rootNode={rootNode}
-          setRootNode={setRootNode}
-          rootRef={rootRef}
-          isSelected={selectedNodes.includes(rootNode.id)}
-          handleNodeClick={handleNodeClick}
-          setIsAnyEditing={setIsAnyEditing}
-          zoomLevel={zoomLevel}
-        />
-
-        <div className="flex flex-col items-start">
-          {nodes.map((node, index) => (
-            <Node
-              key={node.id}
-              rootNode={rootNode}
-              node={nodes[index]}
-              setNodes={setNodes}
-              nodeRef={nodeRefs.current[index]}
-              nodeRefs={nodeRefs}
-              delNode={delNode}
-              isSelected={selectedNodes.includes(node.id)}
-              selectedNodes={selectedNodes}
-              setSelectedNodes={setSelectedNodes}
-              nodes={nodes}
-              sumRefs={sumRefs}
-              isSelectedSum={selectedNodes.includes(node.summary?.id)}
-              handleNodeClick={handleNodeClick}
-              setIsAnyEditing={setIsAnyEditing}
-              zoomLevel={zoomLevel}
-            />
-          ))}
+        <div className={`${layoutMode === "equal" && "order-2"} `}>
+          <RootNode
+            rootNode={rootNode}
+            setRootNode={setRootNode}
+            rootRef={rootRef}
+            isSelected={selectedNodes.includes(rootNode.id)}
+            handleNodeClick={handleNodeClick}
+            setIsAnyEditing={setIsAnyEditing}
+            zoomLevel={zoomLevel}
+          />
         </div>
+        {layoutMode !== "equal" && (
+          <div
+            className={`flex flex-col ${
+              layoutMode === "left" ? "items-start" : "items-end"
+            }`}
+          >
+            {nodes.map((node, index) => (
+              <Node
+                key={node.id}
+                rootNode={rootNode}
+                node={nodes[index]}
+                setNodes={setNodes}
+                nodeRef={nodeRefs.current[index]}
+                nodeRefs={nodeRefs}
+                delNode={delNode}
+                isSelected={selectedNodes.includes(node.id)}
+                selectedNodes={selectedNodes}
+                setSelectedNodes={setSelectedNodes}
+                nodes={nodes}
+                sumRefs={sumRefs}
+                isSelectedSum={selectedNodes.includes(node.summary?.id)}
+                handleNodeClick={handleNodeClick}
+                setIsAnyEditing={setIsAnyEditing}
+                zoomLevel={zoomLevel}
+                layoutMode={layoutMode}
+              />
+            ))}
+          </div>
+        )}
+        {layoutMode === "equal" && (
+          <>
+            <div className="flex flex-col items-end order-1">
+              {nodes.map((node, index) => {
+                if (index >= nodes.length / 2) {
+                  return (
+                    <Node
+                      key={node.id}
+                      rootNode={rootNode}
+                      node={nodes[index]}
+                      setNodes={setNodes}
+                      nodeRef={nodeRefs.current[index]}
+                      nodeRefs={nodeRefs}
+                      delNode={delNode}
+                      isSelected={selectedNodes.includes(node.id)}
+                      selectedNodes={selectedNodes}
+                      setSelectedNodes={setSelectedNodes}
+                      nodes={nodes}
+                      sumRefs={sumRefs}
+                      isSelectedSum={selectedNodes.includes(node.summary?.id)}
+                      handleNodeClick={handleNodeClick}
+                      setIsAnyEditing={setIsAnyEditing}
+                      zoomLevel={zoomLevel}
+                      align={"right"}
+                      layoutMode={layoutMode}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </div>
+            <div className="flex flex-col items-start order-3">
+              {nodes.map((node, index) => {
+                if (index < nodes.length / 2) {
+                  return (
+                    <Node
+                      key={node.id}
+                      rootNode={rootNode}
+                      node={nodes[index]}
+                      setNodes={setNodes}
+                      nodeRef={nodeRefs.current[index]}
+                      nodeRefs={nodeRefs}
+                      delNode={delNode}
+                      isSelected={selectedNodes.includes(node.id)}
+                      selectedNodes={selectedNodes}
+                      setSelectedNodes={setSelectedNodes}
+                      nodes={nodes}
+                      sumRefs={sumRefs}
+                      isSelectedSum={selectedNodes.includes(node.summary?.id)}
+                      handleNodeClick={handleNodeClick}
+                      setIsAnyEditing={setIsAnyEditing}
+                      zoomLevel={zoomLevel}
+                      align={"left"}
+                      layoutMode={layoutMode}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </div>
+          </>
+        )}
+        {layoutMode !== "equal" && (
+          <svg
+            className="lines"
+            overflow="visible"
+            xmlns="http://www.w3.org/2000/svg"
+            ref={svgRef}
+            style={{
+              transform: `scale(${1 / zoomLevel})`,
+            }}
+          >
+            {nodes.map((node, index) => {
+              const nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node);
+              return (
+                <React.Fragment key={node.id}>
+                  <path
+                    d={`M${rootSvgLoc.x} ${rootSvgLoc.y} Q ${rootSvgLoc.x} ${nodeLoc.y}, ${nodeLoc.x} ${nodeLoc.y}`}
+                    stroke={node.pathColor}
+                    fill="none"
+                    strokeWidth={node.path.width * zoomLevel}
+                    strokeDasharray={node.path.style * zoomLevel || 0}
+                  />
+                  {/* <circle cx={nodeLoc.x} cy={nodeLoc.y} r="5" fill="blue" /> */}
+                </React.Fragment>
+              );
+            })}
+            {/* <circle cx={rootSvgLoc.x} cy={rootSvgLoc.y} r="5" fill="red" /> */}
+          </svg>
+        )}
+        {layoutMode === "equal" && (
+          <svg
+            className="lines"
+            overflow="visible"
+            xmlns="http://www.w3.org/2000/svg"
+            ref={svgRef}
+            style={{
+              transform: `scale(${1 / zoomLevel})`,
+            }}
+          >
+            {nodes.map((node, index) => {
+              let nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node);
 
-        <svg
-          className="lines"
-          overflow="visible"
-          xmlns="http://www.w3.org/2000/svg"
-          ref={svgRef}
-          style={{
-            transform: `scale(${1 / zoomLevel})`,
-          }}
-        >
-          {nodes.map((node, index) => {
-            const nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node);
-            return (
-              <React.Fragment key={node.id}>
-                <path
-                  d={`M${rootSvgLoc.x} ${rootSvgLoc.y} Q ${rootSvgLoc.x} ${nodeLoc.y}, ${nodeLoc.x} ${nodeLoc.y}`}
-                  stroke={node.pathColor}
-                  fill="none"
-                  strokeWidth={node.path.width * zoomLevel}
-                  strokeDasharray={node.path.style * zoomLevel || 0}
-                />
-                {/* <circle cx={nodeLoc.x} cy={nodeLoc.y} r="5" fill="blue" /> */}
-              </React.Fragment>
-            );
-          })}
-          {/* <circle cx={rootSvgLoc.x} cy={rootSvgLoc.y} r="5" fill="red" /> */}
-        </svg>
+              if (index < nodes.length / 2) {
+                rootSvgLoc = getRootSvgLoc(rootNode.outline.width, "right");
+                nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node, "right");
+                return (
+                  <React.Fragment key={node.id}>
+                    <path
+                      d={`M${rootSvgLoc.x} ${rootSvgLoc.y} Q ${rootSvgLoc.x} ${nodeLoc.y}, ${nodeLoc.x} ${nodeLoc.y}`}
+                      stroke={node.pathColor}
+                      fill="none"
+                      strokeWidth={node.path.width * zoomLevel}
+                      strokeDasharray={node.path.style * zoomLevel || 0}
+                    />
+                    {/* <circle cx={nodeLoc.x} cy={nodeLoc.y} r="5" fill="blue" /> */}
+                  </React.Fragment>
+                );
+              } else {
+                rootSvgLoc = getRootSvgLoc(rootNode.outline.width, "left");
+                nodeLoc = getNodeSvgLoc(nodeRefs.current[index], node, "left");
+                return (
+                  <React.Fragment key={node.id}>
+                    <path
+                      d={`M${rootSvgLoc.x} ${rootSvgLoc.y} Q ${rootSvgLoc.x} ${nodeLoc.y}, ${nodeLoc.x} ${nodeLoc.y}`}
+                      stroke={node.pathColor}
+                      fill="none"
+                      strokeWidth={node.path.width * zoomLevel}
+                      strokeDasharray={node.path.style * zoomLevel || 0}
+                    />
+                    {/* <circle cx={nodeLoc.x} cy={nodeLoc.y} r="5" fill="blue" /> */}
+                  </React.Fragment>
+                );
+              }
+            })}
+            {/* <circle cx={rootSvgLoc.x} cy={rootSvgLoc.y} r="5" fill="red" /> */}
+          </svg>
+        )}
       </div>
     </>
   );
