@@ -236,7 +236,7 @@ export default function ColorStyleTool({
       )}
       {(isGlobal || selectedNodes[0] === rootNode.id) && (
         <div className="flex justify-between relative">
-          <label htmlFor="colorStyleEnabled" className="flex items-center">
+          <div className="flex items-center">
             <input
               id="colorStyleEnabled"
               name="colorStyleEnabled"
@@ -245,8 +245,10 @@ export default function ColorStyleTool({
               onChange={colorStyleEnabledChange}
               className="mr-1"
             />
-            多彩
-          </label>
+            <label htmlFor="colorStyleEnabled" className="hidden sm:inline">
+              多彩
+            </label>
+          </div>
 
           {colorStyleEnabled && (
             <Menu as="div" className="relative inline-block">

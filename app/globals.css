@@ -35,13 +35,13 @@
     @apply flex flex-col;
   }
   .sum-node {
-    @apply flex items-center justify-center rounded px-2 py-1  z-10;
+    @apply flex items-center justify-center rounded px-2 py-1 z-10;
   }
   .btn {
     @apply flex items-center justify-center rounded-md text-gray-700 hover:bg-gray-100;
   }
   .btns-group {
-    @apply flex  bg-white/50 shadow-lg backdrop-blur-lg p-1 rounded-lg border;
+    @apply flex bg-white/50 shadow-lg backdrop-blur-lg p-1 rounded-lg border;
   }
   .rels-lines {
     @apply absolute z-20 pointer-events-none;
@@ -49,6 +49,7 @@
   .info {
     @apply bg-white/70 shadow-lg p-4 px-6 rounded-lg border bottom-24 left-5 fixed z-20 backdrop-blur-lg max-w-80;
   }
+
   .bg-dot {
     background-image: radial-gradient(#bbbbbb 5%, transparent 0);
     background-size: 35px 35px;
@@ -182,4 +183,19 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.menu-btn div {
+  transform: scale(1.1);
+  transition: 0.3s;
+}
+.menu-btn div:nth-child(1) {
+  transform: translate(0, 8px) scale(1.1) rotate(-45deg);
+}
+.menu-btn div:nth-child(2) {
+  transform: scale(1.1);
+  opacity: 0;
+}
+.menu-btn div:nth-child(3) {
+  transform: translate(0, -8px) scale(1.1) rotate(45deg);
 }

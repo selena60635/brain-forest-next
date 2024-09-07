@@ -41,7 +41,7 @@ export default function ThemeTool({
   };
 
   return (
-    <div className="">
+    <div>
       <div className="p-4 border-t">
         <p className="font-medium mb-2">佈景主題</p>
         <Menu as="div" className="relative">
@@ -56,7 +56,9 @@ export default function ThemeTool({
                   }}
                 ></div>
               ))}
-              <span className="ml-2">{themeStyleopts[currentTheme]?.name}</span>
+              <span className="ml-2 hidden sm:inline">
+                {themeStyleopts[currentTheme]?.name}
+              </span>
             </div>
 
             <ChevronDownIcon className="size-4" />

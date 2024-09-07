@@ -369,7 +369,7 @@ export default function TextTool({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between space-x-4">
+      <div className="sm:flex justify-between sm:space-x-4">
         <div className="flex flex-col space-y-4">
           <FontFamilyTool
             rootNode={rootNode}
@@ -408,7 +408,7 @@ export default function TextTool({
             </MenuItems>
           </Menu>
         </div>
-        <div className="flex flex-col items-end space-y-4 relative">
+        <div className="flex sm:flex-col items-end justify-between space-y-4 relative">
           <Combobox
             as="div"
             className="relative"

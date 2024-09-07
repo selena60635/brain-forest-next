@@ -125,13 +125,13 @@ export default function Login() {
 
   return (
     <section
-      className="bg-light/50 h-[calc(100vh-65px)] flex items-center justify-center px-8"
+      className="bg-light/50 h-[calc(100vh-65px)] flex items-center justify-center px-4 md:px-8 bg-[70%_70%] sm:bg-center bg-no-repeat"
       style={{
-        background: "url(/BG-01.jpg) center no-repeat",
+        backgroundImage: "url(/BG-01.jpg)",
       }}
     >
-      <div className="flex justify-between items-center gap-8 max-w-6xl mx-auto w-full bg-white/80 shadow-xl rounded-xl px-10 py-20 mb-20">
-        <div className="bg-white rounded-lg p-8 pb-6 shadow-2xl text-center w-3/4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-8 max-w-6xl mx-auto w-full bg-white/80 shadow-xl rounded-xl p-6 md:p-8 md:px-10 md:py-20 md:mb-20">
+        <div className="bg-white rounded-lg p-4 md:p-8 pb-6 shadow-2xl text-center md:w-3/4">
           <form onSubmit={handleFormSubmit} className="space-y-5">
             <input
               type="email"
@@ -189,13 +189,13 @@ export default function Login() {
                 ></path>
               </svg>
             </button>
-            <div className="text-sm ">
+            <div className="text-sm">
               {isLogin ? (
                 <>
                   <span className="mr-2">Need an account?</span>
                   <span
                     onClick={toggleForm}
-                    className="text-warning cursor-pointer"
+                    className="text-warning cursor-pointer block md:inline"
                   >
                     Sign Up
                   </span>
@@ -205,7 +205,7 @@ export default function Login() {
                   <span className="mr-2">Already have an account?</span>
                   <span
                     onClick={toggleForm}
-                    className="text-warning cursor-pointer"
+                    className="text-warning cursor-pointer block md:inline"
                   >
                     Sign In
                   </span>
@@ -215,15 +215,17 @@ export default function Login() {
           </form>
         </div>
         <div className="w-full text-secondary font-bold flex flex-col">
-          <p className="text-5xl">Join us!</p>
-          <p className="text-2xl mt-4">
+          <p className="text-3xl md:text-5xl">Join us!</p>
+          <p className="text-lg md:text-2xl md:mt-4">
             Start planting your
-            <span className="text-2xl underline decoration-2 ml-1.5">
+            <span className="text-lg md:text-2xl underline decoration-2 ml-1.5">
               Brain Forest.
             </span>
           </p>
-          <div className="flex items-end mt-16 font-semibold">
-            <p className="text-xl">Still considering? Click here to try it.</p>
+          <div className="flex items-start md:items-end mt-2 md:mt-16 font-semibold">
+            <p className="text-sm md:text-xl">
+              Still considering? Click here to try it.
+            </p>
             <button className="rounded-md px-3 py-2 font-bold text-white text-3xl bg-secondary hover:bg-primary ml-4 transition-all duration-100 hover:scale-125">
               <Link href="/workArea">Go</Link>
             </button>

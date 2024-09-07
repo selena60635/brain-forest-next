@@ -47,7 +47,7 @@ export default function Folder() {
   const router = useRouter();
 
   const [page, setPage] = useState(1); //目前頁數
-  const perPage = 15; //每頁顯示的檔案數目
+  const [perPage, setPerPage] = useState(15); //每頁顯示的檔案數目
   //計算顯示的檔案索引範圍
   const lastItemIndex = page * perPage;
   const firstItemIndex = lastItemIndex - perPage;
@@ -87,6 +87,23 @@ export default function Folder() {
       setPage(page + 1);
     }
   };
+  //當畫面寬度改變時，根據螢幕尺寸動態設定每頁檔案數
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 640) {
+        setPerPage(3);
+      } else if (window.innerWidth <= 1024) {
+        setPerPage(7);
+      } else {
+        setPerPage(15);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   //刪除相應id的心智圖檔案
   const handleDelete = async (id, e) => {
@@ -238,82 +255,84 @@ export default function Folder() {
 
   return (
     <section
-      className="bg-light/50 h-[calc(100vh-65px)] flex item-start justify-center px-8 pt-20 pb-32"
+      className="bg-light/50 h-[calc(100vh-65px)] flex item-start justify-center p-4 md:px-8 md:pt-20 md:pb-32 bg-[70%_70%] sm:bg-center bg-no-repeat"
       style={{
-        background: "url(/BG-01.jpg) center no-repeat",
+        backgroundImage: "url(/BG-01.jpg)",
       }}
     >
-      <div className="max-w-6xl w-full mx-auto bg-white/80 shadow-xl rounded-xl p-10 flex flex-col justify-between">
-        {loading ? (
-          <Loading />
-        ) : (
-          <>
-            <div className="grid grid-cols-4 gap-8">
-              <button
-                className="min-h-24  p-2 rounded-lg flex items-center justify-center border border-gray-400 hover:border-gray-700 hover:bg-primary/10 group transition-all duration-200"
-                onClick={handleAddNewFile}
-              >
-                <MdAdd
-                  size={24}
-                  className="text-gray-400 text-3xl group-hover:text-gray-700 transition-all duration-200"
-                />
-              </button>
-
-              {currentMindMaps.map((mindMap) => (
-                <div
-                  key={mindMap.id}
-                  className="min-h-24 p-4 pr-8 shadow-md bg-[#17493b] text-white rounded-lg relative cursor-pointer transition-all duration-200 hover:scale-105"
+      <div className="w-full">
+        <div className="max-w-6xl w-full mx-auto bg-white/80 shadow-xl rounded-xl p-6 md:p-10 flex flex-col justify-between">
+          {loading ? (
+            <Loading />
+          ) : (
+            <>
+              <div className="grid sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-8">
+                <button
+                  className="min-h-24 p-2 rounded-lg flex items-center justify-center border border-gray-400 hover:border-gray-700 hover:bg-primary/10 group transition-all duration-200"
+                  onClick={handleAddNewFile}
                 >
-                  <Link
-                    href={`/workArea/${mindMap.id}`}
-                    className="flex flex-col justify-between h-full"
-                  >
-                    <h3 className="text-lg font-semibold truncate ">
-                      {mindMap.name || "未命名"}
-                    </h3>
+                  <MdAdd
+                    size={24}
+                    className="text-gray-400 text-3xl group-hover:text-gray-700 transition-all duration-200"
+                  />
+                </button>
 
-                    <p className="text-sm truncate">
-                      {mindMap.lastSavedAt
-                        ? formatDateTime(mindMap.lastSavedAt.seconds)
-                        : "未知"}
-                    </p>
-                  </Link>
-                  <button
-                    className="absolute top-2 right-2 text-red-500 "
-                    onClick={(e) => handleDelete(mindMap.id, e)}
+                {currentMindMaps.map((mindMap) => (
+                  <div
+                    key={mindMap.id}
+                    className="min-h-24 p-4 md:pr-8 shadow-md bg-[#17493b] text-white rounded-lg relative cursor-pointer transition-all duration-200 hover:scale-105"
                   >
-                    <RiDeleteBinLine size={22} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center mb-5 mx-auto space-x-4 text-gray-700">
-              <button
-                onClick={handlePrevPage}
-                disabled={page === 1}
-                className={` w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
-                  page === 1
-                    ? "text-gray-300 border-gray-300"
-                    : "border-gray-400  hover:bg-primary hover:text-white hover:border-0"
-                }`}
-              >
-                <MdChevronLeft size={24} />
-              </button>
-              {pageBtn(pageCount)}
-              <button
-                onClick={handleNextPage}
-                disabled={page === pageCount}
-                className={` w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
-                  page === pageCount
-                    ? "text-gray-300 border-gray-300"
-                    : "border-gray-400 hover:bg-primary hover:text-white hover:border-0"
-                }`}
-              >
-                <MdChevronRight size={24} />
-              </button>
-            </div>
-          </>
-        )}
+                    <Link
+                      href={`/workArea/${mindMap.id}`}
+                      className="flex flex-col justify-between h-full"
+                    >
+                      <h3 className="text-lg font-semibold truncate">
+                        {mindMap.name || "未命名"}
+                      </h3>
+
+                      <p className="text-sm truncate">
+                        {mindMap.lastSavedAt
+                          ? formatDateTime(mindMap.lastSavedAt.seconds)
+                          : "未知"}
+                      </p>
+                    </Link>
+                    <button
+                      className="absolute top-2 right-2 text-red-500 "
+                      onClick={(e) => handleDelete(mindMap.id, e)}
+                    >
+                      <RiDeleteBinLine size={22} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center mt-4 md:mb-5 mx-auto space-x-4 text-gray-700">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={page === 1}
+                  className={`w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
+                    page === 1
+                      ? "text-gray-300 border-gray-300"
+                      : "border-gray-400  hover:bg-primary hover:text-white hover:border-0"
+                  }`}
+                >
+                  <MdChevronLeft size={24} />
+                </button>
+                {perPage === 15 && pageBtn(pageCount)}
+                <button
+                  onClick={handleNextPage}
+                  disabled={page === pageCount}
+                  className={` w-10 h-10 bg-white border rounded-md flex justify-center items-center ${
+                    page === pageCount
+                      ? "text-gray-300 border-gray-300"
+                      : "border-gray-400 hover:bg-primary hover:text-white hover:border-0"
+                  }`}
+                >
+                  <MdChevronRight size={24} />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

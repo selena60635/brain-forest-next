@@ -250,9 +250,9 @@ export default function ShapeTool({
               </div>
             )}
           </div>
-          <div className="flex flex-wrap justify-between items-center relative">
+          <div className="sm:flex flex-wrap justify-between items-center relative">
             <span>邊框</span>
-            <div className="flex">
+            <div className="flex justify-between mt-1 sm:mt-0">
               <Menu as="div" className="relative inline-block">
                 <MenuButton className="flex items-center justify-between gap-2 rounded-md border shadow w-20 h-6 px-1 focus:outline-none data-[hover]:bg-gray-100 data-[open]:bg-gray-100 data-[focus]:outline-1 data-[focus]:outline-white ">
                   {

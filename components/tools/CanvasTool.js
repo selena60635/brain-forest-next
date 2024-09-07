@@ -100,9 +100,9 @@ export default function CanvasTool({
           </div>
         )}
       </div>
-      <div className="flex justify-between">
+      <div className="sm:flex justify-between">
         <p>畫布背景樣式</p>
-        <Menu as="div" className="relative inline-block">
+        <Menu as="div" className="relative inline-block mt-2 sm:mt-0">
           <MenuButton className="flex items-center justify-between gap-2 rounded-md border shadow py-2 px-3 w-36 h-12 focus:outline-none data-[hover]:bg-gray-100 data-[open]:bg-gray-100 data-[focus]:outline-1 data-[focus]:outline-white ">
             {canvasBgStyleOpts.find((opt) => opt.value === canvasBgStyle)?.icon}
             <ChevronDownIcon className="size-4" />

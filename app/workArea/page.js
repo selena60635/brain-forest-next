@@ -1126,7 +1126,7 @@ export default function WorkArea({ id }) {
       >
         <div
           className={`transition-all duration-300 ease-in-out ${
-            isToolBoxOpen ? "w-6/12 sm:w-10/12" : "w-screen"
+            isToolBoxOpen ? "w-6/12 md:w-8/12 lg:w-9/12 xl:w-10/12" : "w-screen"
           }`}
         >
           <div
@@ -1159,9 +1159,11 @@ export default function WorkArea({ id }) {
 
               <Info />
 
-              <div
+              {/* <div
                 className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out ${
-                  isToolBoxOpen ? "right-[356px]" : "right-10"
+                  isToolBoxOpen
+                    ? "right-[198px] sm:right-[356px]"
+                    : "right-4 sm:right-10"
                 }`}
               >
                 <BtnsGroupRow
@@ -1171,7 +1173,7 @@ export default function WorkArea({ id }) {
                   toggleFullScreen={toggleFullScreen}
                   handleZoom={handleZoom}
                 />
-              </div>
+              </div> */}
             </div>
 
             {selectBox && (
@@ -1234,62 +1236,77 @@ export default function WorkArea({ id }) {
           </div>
         </div>
         <div
-          className={`bg-white absolute right-0 w-6/12 sm:w-2/12 transition-all duration-300 ease-in-out ${
+          className={`bg-white absolute right-0 w-6/12 md:w-4/12 xl:w-3/12 2xl:w-2/12 transition-all duration-300 ease-in-out ${
             isToolBoxOpen ? "translate-x-0" : "translate-x-full "
           }`}
         >
           <div
-            className={`${
+            className={`overflow-scroll ${
               isFullScreen ? "h-screen" : "h-[calc(100vh-65px)]"
-            } border-l shadow-lg tool-box`}
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            }`}
           >
-            <ToolBox
-              rootNode={rootNode}
-              setRootNode={setRootNode}
-              nodes={nodes}
-              setNodes={setNodes}
-              selectedNodes={selectedNodes}
-              currentColorStyle={currentColorStyle}
-              setCurrentColorStyle={setCurrentColorStyle}
-              colorStyles={colorStyles}
-              findNode={findNode}
-              setColorIndex={setColorIndex}
-              nodesColor={nodesColor}
-              setNodesColor={setNodesColor}
-              setSelectedNodes={setSelectedNodes}
-              setLoading={setLoading}
-              nodeRefs={nodeRefs}
-              themes={themes}
-              currentTheme={currentTheme}
-              setCurrentTheme={setCurrentTheme}
-              canvasBgColor={canvasBgColor}
-              setCanvasBgColor={setCanvasBgColor}
-              canvasBgStyle={canvasBgStyle}
-              setCanvasBgStyle={setCanvasBgStyle}
-              pathWidth={pathWidth}
-              setPathWidth={setPathWidth}
-              pathStyle={pathStyle}
-              setPathStyle={setPathStyle}
-              fontFamily={fontFamily}
-              setFontFamily={setFontFamily}
-              rels={rels}
-              setRels={setRels}
-              selectedRelId={selectedRelId}
-            />
-            <div className="btns-group top-4 -left-[84px] absolute z-20 h-12">
-              <Button
-                className="btn aspect-square"
-                onClick={() => setIsToolBoxOpen(!isToolBoxOpen)}
+            <div
+              className={`h-screen border-l shadow-lg tool-box`}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <ToolBox
+                rootNode={rootNode}
+                setRootNode={setRootNode}
+                nodes={nodes}
+                setNodes={setNodes}
+                selectedNodes={selectedNodes}
+                currentColorStyle={currentColorStyle}
+                setCurrentColorStyle={setCurrentColorStyle}
+                colorStyles={colorStyles}
+                findNode={findNode}
+                setColorIndex={setColorIndex}
+                nodesColor={nodesColor}
+                setNodesColor={setNodesColor}
+                setSelectedNodes={setSelectedNodes}
+                setLoading={setLoading}
+                nodeRefs={nodeRefs}
+                themes={themes}
+                currentTheme={currentTheme}
+                setCurrentTheme={setCurrentTheme}
+                canvasBgColor={canvasBgColor}
+                setCanvasBgColor={setCanvasBgColor}
+                canvasBgStyle={canvasBgStyle}
+                setCanvasBgStyle={setCanvasBgStyle}
+                pathWidth={pathWidth}
+                setPathWidth={setPathWidth}
+                pathStyle={pathStyle}
+                setPathStyle={setPathStyle}
+                fontFamily={fontFamily}
+                setFontFamily={setFontFamily}
+                rels={rels}
+                setRels={setRels}
+                selectedRelId={selectedRelId}
+              />
+              <div className="btns-group top-[25px] -left-16 md:-left-[84px] absolute z-20 h-12">
+                <Button
+                  className="btn aspect-square"
+                  onClick={() => setIsToolBoxOpen(!isToolBoxOpen)}
+                >
+                  <PiToolbox
+                    size={24}
+                    strokeWidth="3"
+                    className={`${isToolBoxOpen ? "text-primary" : ""}`}
+                  />
+                </Button>
+              </div>
+              <div
+                className={`bottom-10 absolute z-20 transition-all duration-300 ease-in-out -left-16 md:-left-[262px]`}
               >
-                <PiToolbox
-                  size={24}
-                  strokeWidth="3"
-                  className={`${isToolBoxOpen ? "text-primary" : ""}`}
+                <BtnsGroupRow
+                  togglePanMode={togglePanMode}
+                  isPanMode={isPanMode}
+                  scrollToCenter={scrollToCenter}
+                  toggleFullScreen={toggleFullScreen}
+                  handleZoom={handleZoom}
                 />
-              </Button>
+              </div>
             </div>
           </div>
         </div>

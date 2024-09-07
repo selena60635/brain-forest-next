@@ -351,7 +351,7 @@ export default function FileTool({
     }
   };
   return (
-    <div className="">
+    <div>
       <div className="flex flex-col p-4 border-t">
         <span className="font-medium mb-2">匯出</span>
         <button
@@ -370,7 +370,7 @@ export default function FileTool({
               type="file"
               accept=".md"
               onChange={handleFileChange}
-              className=" hidden"
+              className="hidden"
             />
             選擇檔案
           </label>
@@ -403,6 +403,7 @@ export default function FileTool({
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="輸入主題"
+            className="w-full"
           />
           <button
             onClick={() => fetchMindmapFromOpenAI(topic)}
