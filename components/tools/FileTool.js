@@ -397,7 +397,7 @@ export default function FileTool({
         <div className="border rounded p-4 mb-4 h-40 overflow-y-scroll">
           <pre>{markdownAI}</pre>
         </div>
-        <div className="pl-3 border rounded flex justify-between mb-4">
+        <div className="border rounded flex justify-between mb-4">
           <input
             type="text"
             value={topic}
