@@ -1274,7 +1274,7 @@ export default function WorkArea({ id }) {
                 setRels={setRels}
                 selectedRelId={selectedRelId}
               />
-              <div className="btns-group top-[25px] -left-16 md:-left-[84px] absolute z-20 h-12">
+              <div className="btns-group top-[25px] -left-16 md:-left-[84px] absolute z-20 w-12 h-12">
                 <Button
                   className="btn aspect-square"
                   onClick={() => setIsToolBoxOpen(!isToolBoxOpen)}

@@ -11,7 +11,7 @@ export default function BtnsGroupRow({
 }) {
   return (
     <div className="flex flex-col md:flex-row md:space-x-4">
-      <div className="btns-group justify-center h-12 mb-4 md:mb-0">
+      <div className="btns-group justify-center w-12 h-12 mb-4 md:mb-0">
         <Button
           className={`btn aspect-square relative group w-full ${
             isPanMode && "bg-primary text-white hover:bg-primary"

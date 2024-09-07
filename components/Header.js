@@ -121,16 +121,16 @@ export default function Header() {
             <Link
               href="/login"
               className="px-3 py-2 font-medium  hover:text-primary"
+              onClick={handleSignOut}
             >
-              Sign In
+              Sign Out
             </Link>
           ) : (
             <Link
               href="/login"
               className="px-3 py-2 font-medium  hover:text-primary"
-              onClick={handleSignOut}
             >
-              Sign Out
+              Sign In
             </Link>
           )}
         </li>
