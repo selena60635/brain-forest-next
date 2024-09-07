@@ -351,6 +351,7 @@ export default function WorkArea({ id }) {
   const nodeRefs = useRef([]); //宣告一個引用，初始為空陣列，用來存儲每個引用的節點Dom元素
   const sumRefs = useRef([]);
   const btnsRef = useRef(null); //宣告一個引用，初始為null，用來存儲引用的按鈕群組
+  const btnsRowRef = useRef(null);
   const relRefs = useRef({});
   const pageRef = useRef(null);
 
@@ -537,7 +538,12 @@ export default function WorkArea({ id }) {
 
   //繪製生成選取框
   const handleMouseDown = (e) => {
-    if (e.button !== 0 || btnsRef.current.contains(e.target)) return;
+    if (
+      e.button !== 0 ||
+      btnsRef.current.contains(e.target) ||
+      btnsRowRef.current.contains(e.target)
+    )
+      return;
     if (isPanMode) {
       handlePanMouseDown(e);
     } else {
@@ -1158,22 +1164,6 @@ export default function WorkArea({ id }) {
               </div>
 
               <Info />
-
-              {/* <div
-                className={`bottom-10 fixed z-20 transition-all duration-300 ease-in-out ${
-                  isToolBoxOpen
-                    ? "right-[198px] sm:right-[356px]"
-                    : "right-4 sm:right-10"
-                }`}
-              >
-                <BtnsGroupRow
-                  togglePanMode={togglePanMode}
-                  isPanMode={isPanMode}
-                  scrollToCenter={scrollToCenter}
-                  toggleFullScreen={toggleFullScreen}
-                  handleZoom={handleZoom}
-                />
-              </div> */}
             </div>
 
             {selectBox && (
@@ -1298,6 +1288,7 @@ export default function WorkArea({ id }) {
               </div>
               <div
                 className={`bottom-10 absolute z-20 transition-all duration-300 ease-in-out -left-16 md:-left-[262px]`}
+                ref={btnsRowRef}
               >
                 <BtnsGroupRow
                   togglePanMode={togglePanMode}

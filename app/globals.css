@@ -47,7 +47,7 @@
     @apply absolute z-20 pointer-events-none;
   }
   .info {
-    @apply bg-white/70 shadow-lg p-4 px-6 rounded-lg border bottom-24 left-5 fixed z-20 backdrop-blur-lg max-w-80;
+    @apply bg-white/90 shadow-lg p-4 px-6 rounded-lg border bottom-0 left-16 fixed z-20 backdrop-blur-lg max-w-80;
   }
 
   .bg-dot {
