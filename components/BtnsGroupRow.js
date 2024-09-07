@@ -19,7 +19,7 @@ export default function BtnsGroupRow({
           onClick={togglePanMode}
         >
           <MdOutlinePanTool size={24} />
-          <span className="absolute whitespace-nowrap shadow-lg -left-16 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg -left-16 md:-left-2 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Space
           </span>
         </Button>
@@ -30,7 +30,7 @@ export default function BtnsGroupRow({
           onClick={() => scrollToCenter("smooth")}
         >
           <HiArrowsPointingIn size={24} />
-          <span className="absolute whitespace-nowrap shadow-lg -left-9 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg -left-9 md:left-1.5 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             F1
           </span>
         </Button>
@@ -39,7 +39,7 @@ export default function BtnsGroupRow({
           onClick={toggleFullScreen}
         >
           <HiArrowsPointingOut size={24} />
-          <span className="absolute whitespace-nowrap shadow-lg  -left-10 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg -left-10 md:left-1 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             F2
           </span>
         </Button>
@@ -49,13 +49,13 @@ export default function BtnsGroupRow({
           onClick={() => handleZoom("in")}
         >
           <MdAdd size={24} />
-          <span className="absolute whitespace-nowrap shadow-lg  -left-9 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg  -left-9 md:left-1.5 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             +
           </span>
         </Button>
         <Button className="btn aspect-square relative group">
           <MdRemove size={24} onClick={() => handleZoom("out")} />
-          <span className="absolute whitespace-nowrap shadow-lg  -left-9 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg  -left-9 md:left-2 md:bottom-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             -
           </span>
         </Button>

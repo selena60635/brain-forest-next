@@ -78,7 +78,7 @@ export default function BtnsGroupCol({
               transform="translate(53.788064,36.24848)"
             />
           </svg>
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Enter
           </span>
         </Button>
@@ -94,7 +94,7 @@ export default function BtnsGroupCol({
           >
             <path d="M 449.14062 -653.04688 C 385.75219 -653.04688 333.51562 -600.73219 333.51562 -537.34375 L 333.51562 -520 L 286.71875 -520 A 90 90 0 0 0 206.09375 -570 A 90 90 0 0 0 116.09375 -480 A 90 90 0 0 0 206.09375 -390 A 90 90 0 0 0 286.5625 -440 L 333.51562 -440 L 333.51562 -422.65625 C 333.51562 -359.26781 385.75219 -306.95313 449.14062 -306.95312 L 722.34375 -306.95312 C 785.73219 -306.95312 837.96875 -359.26781 837.96875 -422.65625 L 837.96875 -537.34375 C 837.96875 -600.73219 785.73219 -653.04688 722.34375 -653.04688 L 449.14062 -653.04688 z M 449.14062 -573.04688 L 722.34375 -573.04688 C 742.79605 -573.04688 757.96875 -557.79605 757.96875 -537.34375 L 757.96875 -422.65625 C 757.96875 -402.20395 742.79605 -386.95313 722.34375 -386.95312 L 449.14062 -386.95312 C 428.68833 -386.95312 413.51562 -402.20395 413.51562 -422.65625 L 413.51562 -537.34375 C 413.51562 -557.79605 428.68833 -573.04688 449.14062 -573.04688 z" />
           </svg>
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Tab
           </span>
         </Button>
@@ -111,7 +111,7 @@ export default function BtnsGroupCol({
           >
             <path d="M 458.75 -635.15625 C 349.5142 -632.92694 275.18909 -572.90775 230.46875 -519.45312 A 90 90 0 0 0 207.65625 -522.42188 A 90 90 0 0 0 117.65625 -432.42188 A 90 90 0 0 0 207.65625 -342.42188 A 90 90 0 0 0 297.65625 -432.42188 A 90 90 0 0 0 290.70312 -467.26562 C 324.23074 -507.74146 379.59984 -553.35461 459.92188 -555.15625 C 540.17677 -555.08695 587.93173 -534.34431 620.07812 -508.98438 C 633.5753 -498.3366 644.34149 -486.56008 653.28125 -474.53125 L 586.64062 -449.92188 A 20.356897 20.356897 0 0 0 580.70312 -415.23438 L 673.82812 -337.73438 L 766.95312 -260.3125 A 20.356897 20.356897 0 0 0 800 -272.5 L 820.54688 -391.875 L 841.01562 -511.25 A 20.356897 20.356897 0 0 0 821.48438 -535.07812 A 20.356897 20.356897 0 0 0 813.90625 -533.82812 L 730.54688 -503.04688 C 716.16933 -526.09086 696.74082 -550.39318 669.60938 -571.79688 C 622.8815 -608.65999 554.429 -635.15625 459.53125 -635.15625 A 40.004 40.004 0 0 0 458.75 -635.15625 z" />
           </svg>
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Alt + R
           </span>
         </Button>
@@ -127,14 +127,14 @@ export default function BtnsGroupCol({
           >
             <path d="M 155 -795 A 40 40 0 0 0 115 -755 A 40 40 0 0 0 155 -715 L 179.375 -715 L 182.03125 -555.85938 A 40.004 40.004 0 0 0 197.03125 -525.3125 L 249.14062 -483.59375 L 197.03125 -441.875 A 40.004 40.004 0 0 0 182.03125 -411.32812 L 179.375 -252.26562 L 155 -252.26562 A 40 40 0 0 0 115 -212.26562 A 40 40 0 0 0 155 -172.26562 L 218.75 -172.26562 A 40.004 40.004 0 0 0 258.75 -211.5625 L 261.71875 -391.17188 L 329.6875 -445.625 A 40 40 0 0 0 334.45312 -450.15625 L 334.45312 -424.14062 C 334.45312 -360.7522 386.76782 -308.4375 450.15625 -308.4375 L 723.28125 -308.4375 C 786.66968 -308.4375 838.98438 -360.7522 838.98438 -424.14062 L 838.98438 -538.90625 C 838.98438 -602.29468 786.66968 -654.53125 723.28125 -654.53125 L 450.15625 -654.53125 C 386.76782 -654.53125 334.45313 -602.29468 334.45312 -538.90625 L 334.45312 -517.03125 A 40 40 0 0 0 329.6875 -521.5625 L 261.71875 -576.01562 L 258.75 -755.625 A 40.004 40.004 0 0 0 218.75 -795 L 155 -795 z M 450.15625 -574.53125 L 723.28125 -574.53125 C 743.73354 -574.53125 758.98438 -559.35854 758.98438 -538.90625 L 758.98438 -424.14062 C 758.98438 -403.68834 743.73354 -388.4375 723.28125 -388.4375 L 450.15625 -388.4375 C 429.70396 -388.4375 414.45312 -403.68834 414.45312 -424.14062 L 414.45312 -538.90625 C 414.45312 -559.35854 429.70396 -574.53125 450.15625 -574.53125 z" />
           </svg>
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Alt + S
           </span>
         </Button>
 
         <Button className="btn aspect-square text-gray-700 relative group">
           <RiDeleteBinLine size={22} onClick={handleDelNode} />
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Del
           </span>
         </Button>
@@ -206,7 +206,7 @@ export default function BtnsGroupCol({
               transform="matrix(0.9562036,0,0,0.9513456,25.727453,-23.26848)"
             />
           </svg>
-          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10">
+          <span className="absolute whitespace-nowrap shadow-lg left-12 opacity-0 group-hover:opacity-100 bg-gray-700 text-white p-1 px-2 text-xs rounded z-10 pointer-events-none">
             Ctrl + S
           </span>
         </Button>
