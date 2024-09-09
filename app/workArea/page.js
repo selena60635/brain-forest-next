@@ -1231,7 +1231,7 @@ export default function WorkArea({ id }) {
           }`}
         >
           <div
-            className={`overflow-scroll ${
+            className={`overflow-y-scroll ${
               isFullScreen ? "h-screen" : "h-[calc(100vh-65px)]"
             }`}
           >

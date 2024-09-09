@@ -403,7 +403,7 @@ export default function FileTool({
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="輸入主題"
-            className="w-full"
+            className="w-full rounded pl-2"
           />
           <button
             onClick={() => fetchMindmapFromOpenAI(topic)}
