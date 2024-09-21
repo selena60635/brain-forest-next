@@ -313,12 +313,7 @@ export default function Relations({
               }}
               onDoubleClick={() => editMode(rel.id)}
             >
-              <circle
-                cx={from.x}
-                cy={from.y}
-                r={`${5 * zoomLevel}`}
-                fill={rel.pathColor}
-              />
+              <circle cx={from.x} cy={from.y} r={`${5}`} fill={rel.pathColor} />
               <circle cx={to.x} cy={to.y} r={`${5}`} fill={rel.pathColor} />
               <path
                 d={`M ${from.x} ${from.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${to.x} ${to.y}`}
